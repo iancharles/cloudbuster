@@ -11,9 +11,15 @@ Parameters:
       - suse
   AvailabilityZone:
     Type: AWS::EC2::AvailabilityZone::Name
+  SubnetType:
+    Type: String
+    AllowedValues:
+      - Private
+      - Public
+    Default: Public
 
 Mappings: 
-  RegionMap:
+  AMIMap:
     us-east-1:
       ubuntu18: ami-0042c75bb13991538
       suse: ami-07649adafc3374b17
@@ -24,6 +30,17 @@ Mappings:
     us-west-2:
       ubuntu18: ami-04c29899aa9bf924a
 
+  SubnetMap:
+    us-east-2a:
+      Private: subnet-09fad3f8b283a63ef
+      Public: subnet-0ca766e0aba0bb36e
+    us-east-2b:
+      Private: subnet-0e0cc0412cd1417c7
+      Public: subnet-0947b6bebe5425ec2
+    us-east-2c:
+      Private: subnet-070bc9c800825dbd2
+      Public: subnet-08b783efe3bfed00e
+
 # Conditions: 
 
 Resources: 
@@ -31,8 +48,10 @@ Resources:
     Type: "AWS::EC2::Instance"
     Properties: 
       AvailabilityZone: !Ref AvailabilityZone
-      ImageId: !FindInMap [RegionMap, !Ref "AWS::Region", !Ref "OS"]
+      ImageId: !FindInMap [AMIMap, !Ref "AWS::Region", !Ref "OS"]
       InstanceType: t3.micro
+      SubnetId: !FindInMap [SubnetMap, !Ref AvailabilityZone, !Ref SubnetType]
+
 
 Outputs:
   InstanceID:

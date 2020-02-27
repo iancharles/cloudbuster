@@ -1,43 +1,72 @@
 import boto3
+import collections
+
+
 
 # Temp variables, replace with logic
 profile_nm = "default"
-region_nm = "us-east-2"
+# region_nm = "us-east-2"
 
-# Initial setup
-session = boto3.Session(profile_name=profile_nm, region_name=region_nm)
+# Initial structure and defaults
+subnet_dict = collections.defaultdict(dict)
+subnet_dict['Mappings'] = collections.defaultdict(dict)
+subnet_dict['Mappings']['SubnetMap'] = collections.defaultdict(dict)
 
-# Initiate the session
-ec2.session.client('ec2')
+regions = ['us-east-1', 'us-east-2', 'us-west-2']
 
-# Get public subnets
-public_subnets = ec2.describe_subnets(
-    Filters=[
-        {
-            'Name': 'tag:Name',
-            'Values': [
-                '*public*'
-            ]
-        }
-    ]
-)
+# NU LOOP
+for region_nm in regions:
 
-print("Public Subnets")
-for subnet in public_subnets['Subnets']:
-    print(f"{subnet['AvailabilityZone']}: {subnet['SubnetId']} - {subnet['VpdId']}")
+    # Initial setup
+    session = boto3.Session(profile_name=profile_nm, region_name=region_nm)
 
-# Get private subnets
-private_subnets = ec2.describe_subnets(
-    Filters=[
-        {
-            'Name': 'tag:Name',
-            'Values': [
-                '*private*'
-            ]
-        }
-    ]
-)
+    # Initiate the session
+    ec2 = session.client('ec2')
 
-print("Private Subnets")
-for subnet in private_subnets['Subnets']:
-    print(f"{subnet['AvailabilityZone']}: {subnet['SubnetId']} - {subnet['VpdId']}")
+    # Get public subnets
+    public_subnets = ec2.describe_subnets(
+        Filters=[
+            {
+                'Name': 'tag:Name',
+                'Values': [
+                    '*ublic*'
+                ]
+            }
+        ]
+    )
+
+
+
+
+
+    # print("Public Subnets")
+    for subnet in public_subnets['Subnets']:
+        subnet_dict['Mappings']['SubnetMap'][subnet['AvailabilityZone']]["Public"] = subnet['SubnetId']
+
+    # Get private subnets
+    private_subnets = ec2.describe_subnets(
+        Filters=[
+            {
+                'Name': 'tag:Name',
+                'Values': [
+                    '*rivate*'
+                ]
+            }
+        ]
+    )
+
+    # print("Private Subnets")
+    for subnet in private_subnets['Subnets']:
+        subnet_dict['Mappings']['SubnetMap'][subnet['AvailabilityZone']]["Private"] = subnet['SubnetId']
+
+
+
+# The final printer
+for key in subnet_dict:
+    print(f"{key}:")
+    for key_two in subnet_dict[key]:
+        print(f"  {key_two}:")
+        for key_three in subnet_dict[key][key_two]:
+            print(f"    {key_three}:")
+            for key_four in subnet_dict[key][key_two][key_three]:
+                print(f"      {key_four}: {subnet_dict[key][key_two][key_three][key_four]}")

@@ -21,7 +21,8 @@ Resources:
     Type: AWS::EC2::Subnet
     Properties:
       AvailabilityZone: us-east-2a
-      VpcId: !Ref VPC         
+      VpcId: !Ref VPC
+      MapPublicIpOnLaunch: true
       CidrBlock: 10.0.0.0/24
       Tags:
         - Key: Name
@@ -39,7 +40,8 @@ Resources:
     Type: AWS::EC2::Subnet
     Properties:
       AvailabilityZone: us-east-2b
-      VpcId: !Ref VPC         
+      VpcId: !Ref VPC
+      MapPublicIpOnLaunch: true
       CidrBlock: 10.0.2.0/24
       Tags:
         - Key: Name
@@ -53,6 +55,25 @@ Resources:
       Tags:
         - Key: Name
           Value: cb-ohio-private-2
+  publicSubnet3:
+    Type: AWS::EC2::Subnet
+    Properties:
+      AvailabilityZone: us-east-2c
+      VpcId: !Ref VPC
+      MapPublicIpOnLaunch: true
+      CidrBlock: 10.0.4.0/24
+      Tags:
+        - Key: Name
+          Value: cb-ohio-public-3
+  privateSubnet3:
+    Type: AWS::EC2::Subnet
+    Properties:
+      AvailabilityZone: us-east-2c
+      VpcId: !Ref VPC
+      CidrBlock: 10.0.5.0/24
+      Tags:
+        - Key: Name
+          Value: cb-ohio-private-3
   InternetGateway:
     Type: AWS::EC2::InternetGateway
     Properties:
@@ -111,6 +132,11 @@ Resources:
     Properties:
       SubnetId: !Ref privateSubnet2
       RouteTableId: !Ref PrivateRouteTable
+  PrivateRTAssoc3:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      SubnetId: !Ref privateSubnet3
+      RouteTableId: !Ref PrivateRouteTable    
   PublicRTAssoc1:
     Type: AWS::EC2::SubnetRouteTableAssociation
     Properties:
@@ -121,4 +147,10 @@ Resources:
     Properties:
       SubnetId: !Ref publicSubnet2
       RouteTableId: !Ref PublicRouteTable
+  PublicRTAssoc3:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      SubnetId: !Ref publicSubnet3
+      RouteTableId: !Ref PublicRouteTable
+
 # Outputs:

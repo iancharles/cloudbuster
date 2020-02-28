@@ -31,15 +31,24 @@ Mappings:
       ubuntu18: ami-04c29899aa9bf924a
 
   SubnetMap:
+    us-east-1a:
+      Public: subnet-1ab2e551
+    us-east-1b:
+      Public: subnet-3aab2667
+    us-east-1d:
+      Private: subnet-c80e87e7
+    us-east-1c:
+      Private: subnet-06501962
     us-east-2a:
-      Private: subnet-09fad3f8b283a63ef
       Public: subnet-0ca766e0aba0bb36e
-    us-east-2b:
-      Private: subnet-0e0cc0412cd1417c7
-      Public: subnet-0947b6bebe5425ec2
+      Private: subnet-09fad3f8b283a63ef
     us-east-2c:
-      Private: subnet-070bc9c800825dbd2
       Public: subnet-08b783efe3bfed00e
+      Private: subnet-070bc9c800825dbd2
+    us-east-2b:
+      Public: subnet-0947b6bebe5425ec2
+      Private: subnet-0e0cc0412cd1417c7
+
 
 # Conditions: 
 

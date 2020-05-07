@@ -20,15 +20,7 @@ Parameters:
 
 Mappings: 
   AMIMap:
-    us-east-1:
-      ubuntu18: ami-0042c75bb13991538
-      suse: ami-07649adafc3374b17
-    us-east-2:
-      ubuntu16: ami-0564dd36709a7a5b2
-      ubuntu18: ami-0e8d1a9b450baa691
-      suse: ami-0eb964f1cd28eb94d
-    us-west-2:
-      ubuntu18: ami-04c29899aa9bf924a
+    VAR_AMI_MAP
 
   SubnetMap:
     us-east-1a:

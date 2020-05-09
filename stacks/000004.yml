@@ -1,0 +1,82 @@
+AWSTemplateFormatVersion: 2010-09-09
+Description: Template for EC2 instances
+# Metadata: 
+
+Parameters:
+  OS:
+    Type: String
+    AllowedValues:
+      - ubuntu16
+      - ubuntu18
+      - suse
+  AvailabilityZone:
+    Type: AWS::EC2::AvailabilityZone::Name
+  SubnetType:
+    Type: String
+    AllowedValues:
+      - Private
+      - Public
+    Default: Private
+  IamInstanceProfile:
+    Type: String
+    Default: EC2-S3-Access
+
+# Mappings will need to be created by CB #
+Mappings: 
+  AMIMap:
+    us-east-1:
+      ubuntu18: ami-0042c75bb13991538
+      suse: ami-07649adafc3374b17
+    us-east-2:
+      ubuntu16: ami-0564dd36709a7a5b2
+      ubuntu18: ami-0e8d1a9b450baa691
+      suse: ami-0eb964f1cd28eb94d
+    us-west-2:
+      ubuntu18: ami-04c29899aa9bf924a
+# Subnetmap function will need to be scoped down to region
+  SubnetMap:
+    us-east-2a:
+      Public: subnet-0ca766e0aba0bb36e
+      Private: subnet-09fad3f8b283a63ef
+    us-east-2c:
+      Public: subnet-08b783efe3bfed00e
+      Private: subnet-070bc9c800825dbd2
+    us-east-2b:
+      Public: subnet-0947b6bebe5425ec2
+      Private: subnet-0e0cc0412cd1417c7
+# Conditions: 
+
+Resources: 
+  myEC2Instance:
+    Type: AWS::EC2::Instance
+    Properties:
+      BlockDeviceMappings:
+        - DeviceName: /dev/sda1
+          Ebs:
+            VolumeSize: 64
+            Encrypted: true
+        - DeviceName: /dev/xvdb
+          Ebs:
+            VolumeSize: 
+            Encrypted: true
+      IamInstanceProfile: !Ref IamInstanceProfile
+      ImageId: !FindInMap [AMIMap, !Ref "AWS::Region", !Ref "OS"]
+      InstanceType: VAR_INSTANCE_TYPE
+      KeyName: moon-cb-east-2
+      SecurityGroupIds:
+        - sg-0560f1f9aff2ce8bf
+        - sg-0946fa03e2571cd62
+      SubnetId: !FindInMap [SubnetMap, !Ref AvailabilityZone, !Ref SubnetType]
+      Tags:
+        - Key: Name
+          Value: "VAR_HOSTNAME"
+      UserData: !Base64 |
+        #!/bin/bash -ex
+        hostnamectl set-hostname VAR_HOSTNAME
+        echo "VAR_USER" > user.txt
+        echo "VAR_TIMEZONE" > timezone.txt
+Outputs:
+  PrivateIP:
+    Value: !GetAtt
+      - myEC2Instance
+      - PrivateIp

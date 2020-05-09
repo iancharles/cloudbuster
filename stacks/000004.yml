@@ -1,5 +1,6 @@
 AWSTemplateFormatVersion: 2010-09-09
 Description: Template for EC2 instances
+
 # Metadata: 
 
 Parameters:
@@ -11,6 +12,7 @@ Parameters:
       - suse
   AvailabilityZone:
     Type: AWS::EC2::AvailabilityZone::Name
+    Default: VAR_REGIONa
   SubnetType:
     Type: String
     AllowedValues:
@@ -22,17 +24,12 @@ Parameters:
     Default: EC2-S3-Access
 
 # Mappings will need to be created by CB #
-Mappings: 
+Mappings:
   AMIMap:
-    us-east-1:
-      ubuntu18: ami-0042c75bb13991538
-      suse: ami-07649adafc3374b17
     us-east-2:
       ubuntu16: ami-0564dd36709a7a5b2
       ubuntu18: ami-0e8d1a9b450baa691
       suse: ami-0eb964f1cd28eb94d
-    us-west-2:
-      ubuntu18: ami-04c29899aa9bf924a
 # Subnetmap function will need to be scoped down to region
   SubnetMap:
     us-east-2a:
@@ -44,7 +41,9 @@ Mappings:
     us-east-2b:
       Public: subnet-0947b6bebe5425ec2
       Private: subnet-0e0cc0412cd1417c7
-# Conditions: 
+
+Conditions: 
+  CreateEIP: !Equals [ !Ref SubnetType, Public]
 
 Resources: 
   myEC2Instance:
@@ -57,12 +56,13 @@ Resources:
             Encrypted: true
         - DeviceName: /dev/xvdb
           Ebs:
-            VolumeSize: 
+            # WILL NEED TO FIX VOLUME INPUT
+            VolumeSize: VAR_DATAB
             Encrypted: true
       IamInstanceProfile: !Ref IamInstanceProfile
-      ImageId: !FindInMap [AMIMap, !Ref "AWS::Region", !Ref "OS"]
+      ImageId: !FindInMap [AMIMap, !Ref "OS"]
       InstanceType: VAR_INSTANCE_TYPE
-      KeyName: moon-cb-east-2
+      KeyName: VAR_KEYNAME
       SecurityGroupIds:
         - sg-0560f1f9aff2ce8bf
         - sg-0946fa03e2571cd62
@@ -73,10 +73,30 @@ Resources:
       UserData: !Base64 |
         #!/bin/bash -ex
         hostnamectl set-hostname VAR_HOSTNAME
-        echo "VAR_USER" > user.txt
-        echo "VAR_TIMEZONE" > timezone.txt
+        echo "VAR_USER" > /home/ubuntu/user.txt
+        echo "VAR_TIMEZONE" > /home/ubuntu/timezone.txt
+        timedatectl set-timezone VAR_TIMEZONE
+        adduser "VAR_USER"
+        cp -R /home/ubuntu/.ssh /home/VAR_USER/.ssh
+        chown -R VAR_USER: /home/VAR_USER/
+        echo "VAR_USER ALL=(ALL) NOPASSWD: ALL" >> /etc/sudoers.d/VAR_USER
+        chage -I -1 -m 0 -M 99999 -E -1 VAR_USER
+        echo "VAR_USER" > /home/VAR_USER/user.txt
+        echo "VAR_TIMEZONE" > /home/VAR_USER/timezone.txt
+        reboot now
+  ElasticIP:
+    Type: AWS::EC2::EIP
+    Condition: CreateEIP
+    Properties:
+      Domain: vpc
+      InstanceId: !Ref myEC2Instance
+
+  # END OF RESOURCES
+
 Outputs:
   PrivateIP:
     Value: !GetAtt
       - myEC2Instance
       - PrivateIp
+
+  # END OF OUTPUTS

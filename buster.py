@@ -1,6 +1,7 @@
 import boto3
 import argparse
-import sys
+from regionget import get_region
+# import sys
 # from subnetget import get_subnets
 # from amiget import get_amis
 # from sg_get import get_sgs
@@ -21,13 +22,27 @@ parser.add_argument('--profile', help="AWS CLI Profile")
 parser.add_argument('--network', help="Public or Private subnet")
 parser.add_argument('--timezone', help='Timezone of instance')
 parser.add_argument('--user', help='default user on instance')
+parser.add_argument('-d', '--disks', nargs='+', help='add data volumes')
 args = parser.parse_args()
 
 value_dict = {}
 
+disks = args.disks
+
+
 source_file = "stacks/000004.yml"
 build_file = "stacks/000005.yml"
 
+vpc = "vpc-06db524c77128c292"
+profile = "default"
+
+if args.region:
+    region = args.region
+else:
+    region = get_region(profile, vpc)
+value_dict["VAR_REGION"] = region
+
+print(region)
 # VALIDATE ARGUMENTS
 
 
@@ -45,6 +60,9 @@ if args.timezone:
 
 if args.user:
     value_dict["VAR_USER"] = args.user
+
+if args.region:
+    value_dict["VAR_REGION"] = args.region
 
 print(value_dict)
 

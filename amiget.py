@@ -7,78 +7,73 @@ from dateutil import parser
 
 # Temp variables, replace with logic
 profile_nm = "default"
-# region_nm = "us-east-2"
+region_nm = "us-east-2"
 
 # Initial structure and defaults
 subnet_dict = collections.defaultdict(dict)
 subnet_dict['Mappings'] = collections.defaultdict(dict)
 subnet_dict['Mappings']['AMIMap'] = collections.defaultdict(dict)
 
-regions = ['us-east-1', 'us-east-2', 'us-west-2']
+# Initial setup
+session = boto3.Session(profile_name=profile_nm, region_name=region_nm)
 
-# NU LOOP
-for region_nm in regions:
+# Initiate the session
+ec2 = session.client('ec2')
 
-    # Initial setup
-    session = boto3.Session(profile_name=profile_nm, region_name=region_nm)
+# Get all AMIs
+all_amis = ec2.describe_images(
+    Owners=[
+        'self',
+    ]
+)
 
-    # Initiate the session
-    ec2 = session.client('ec2')
+# Format dates and order main dict by date
+for image in all_amis['Images']:
+    image['CreationDate'] = image['CreationDate'][:19]
+    # image['CreationDate'] = datetime.datetime.strptime(image['CreationDate'], "%Y-%m-%dT%H:%M:%S")
 
-    # Get all AMIs
-    all_amis = ec2.describe_images(
-        Owners=[
-            'self',
-        ]
-    )
+all_amis['Images'].sort(key= lambda image: datetime.datetime.strptime(image['CreationDate'], "%Y-%m-%dT%H:%M:%S"))
 
-    # Format dates and order main dict by date
-    for image in all_amis['Images']:
-        image['CreationDate'] = image['CreationDate'][:19]
-        # image['CreationDate'] = datetime.datetime.strptime(image['CreationDate'], "%Y-%m-%dT%H:%M:%S")
- 
-    all_amis['Images'].sort(key= lambda image: datetime.datetime.strptime(image['CreationDate'], "%Y-%m-%dT%H:%M:%S"))
+count = 0
 
-    count = 0
+# Create empty OS dicts
+ubuntu16_amis = [""]
+ubuntu18_amis = [""]
+suse_amis = [""]
 
-    # Create empty OS dicts
-    ubuntu16_amis = [""]
-    ubuntu18_amis = [""]
-    suse_amis = [""]
+# Sort images into dicts by OS
+for image in all_amis['Images']:
+    if 'ubuntu' in image['Name'].lower() and '16' in image['Name'].lower():
+        ubuntu16_amis.append(image)
+    elif 'ubuntu' in image['Name'].lower() and '18' in image['Name'].lower():
+        ubuntu18_amis.append(image)
+    elif 'suse' in image['Name'].lower():
+        suse_amis.append(image)    
 
-    # Sort images into dicts by OS
-    for image in all_amis['Images']:
-        if 'ubuntu' in image['Name'].lower() and '16' in image['Name'].lower():
-            ubuntu16_amis.append(image)
-        elif 'ubuntu' in image['Name'].lower() and '18' in image['Name'].lower():
-            ubuntu18_amis.append(image)
-        elif 'suse' in image['Name'].lower():
-            suse_amis.append(image)    
+ubuntu16 = ubuntu16_amis[-1]
+ubuntu18 = ubuntu18_amis[-1]
+suse = suse_amis[-1]
 
-    ubuntu16 = ubuntu16_amis[-1]
-    ubuntu18 = ubuntu18_amis[-1]
-    suse = suse_amis[-1]
+# print(ubuntu16_amis)
+# print(ubuntu18_amis)
+# print(suse_amis)
 
-    # print(ubuntu16_amis)
-    # print(ubuntu18_amis)
-    # print(suse_amis)
+try:
+    # print(f"{ubuntu16['Name']} - {ubuntu16['ImageId']} - {ubuntu16['CreationDate']}")
+    subnet_dict['Mappings']['AMIMap'][region_nm]['ubuntu16'] = ubuntu16['ImageId']
+except:
+    pass
 
-    try:
-        # print(f"{ubuntu16['Name']} - {ubuntu16['ImageId']} - {ubuntu16['CreationDate']}")
-        subnet_dict['Mappings']['AMIMap'][region_nm]['ubuntu16'] = ubuntu16['ImageId']
-    except:
-        pass
-
-    try:
-        # print(f"{ubuntu18['Name']} - {ubuntu18['ImageId']} - {ubuntu18['CreationDate']}")
-        subnet_dict['Mappings']['AMIMap'][region_nm]['ubuntu18'] = ubuntu18['ImageId']
-    except:
-        pass
-    try:
-        # print(f"{suse['Name']} - {suse['ImageId']} - {suse['CreationDate']}")
-        subnet_dict['Mappings']['AMIMap'][region_nm]['suse'] = suse['ImageId']
-    except:
-        pass
+try:
+    # print(f"{ubuntu18['Name']} - {ubuntu18['ImageId']} - {ubuntu18['CreationDate']}")
+    subnet_dict['Mappings']['AMIMap'][region_nm]['ubuntu18'] = ubuntu18['ImageId']
+except:
+    pass
+try:
+    # print(f"{suse['Name']} - {suse['ImageId']} - {suse['CreationDate']}")
+    subnet_dict['Mappings']['AMIMap'][region_nm]['suse'] = suse['ImageId']
+except:
+    pass
 
 
 # The final printer

@@ -27,9 +27,8 @@ args = parser.parse_args()
 
 value_dict = {}
 
-disks = args.disks
-
 allowed_os = ['ubuntu16', 'ubuntu18', 'suse']
+
 
 source_file = "stacks/000004.yml"
 build_file = "stacks/000005.yml"
@@ -79,6 +78,26 @@ else:
 
     value_dict["# VAR_PARAM_OS"] = os_params
     value_dict["VAR_OS"] = "!Ref OS"
+
+
+# If disks are entered, add them. Else, ignore
+disks = args.disks
+block_device_pool = ['/dev/xvdb', '/dev/xvdc', '/dev/xvdd', '/dev/xvde' ]
+counter = 0
+disk_params = ""
+
+for disk in disks:
+    disk_params += "        - DeviceName: " + block_device_pool[counter] + "\n"
+    disk_params += "          Ebs:" + "\n"
+    disk_params += "            VolumeSize: " + disk + "\n"
+    disk_params += "            Encrypted: true"
+    counter += 1
+    if counter < len(block_device_pool):
+        disk_params += "\n"
+        
+value_dict["# VAR_PARAM_DISKS"] = disk_params
+
+
 
 print(value_dict)
 

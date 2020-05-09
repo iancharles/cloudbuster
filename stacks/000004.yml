@@ -49,11 +49,7 @@ Resources:
           Ebs:
             VolumeSize: 64
             Encrypted: true
-        - DeviceName: /dev/xvdb
-          Ebs:
-            # WILL NEED TO FIX VOLUME INPUT
-            VolumeSize: VAR_DATAB
-            Encrypted: true
+# VAR_PARAM_DISKS
       IamInstanceProfile: !Ref IamInstanceProfile
       ImageId: !FindInMap [AMIMap, VAR_REGION, VAR_OS]
       InstanceType: VAR_INSTANCE_TYPE
@@ -93,5 +89,11 @@ Outputs:
     Value: !GetAtt
       - myEC2Instance
       - PrivateIp
+  PublicIP:
+    Condition: CreateEIP
+    Value: !GetAtt
+      - myEC2Instance
+      - PublicIp
+  
 
   # END OF OUTPUTS

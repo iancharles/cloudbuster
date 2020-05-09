@@ -51,9 +51,13 @@ Resources:
             Encrypted: true
         - DeviceName: /dev/xvdb
           Ebs:
-            # WILL NEED TO FIX VOLUME INPUT
-            VolumeSize: VAR_DATAB
+            VolumeSize: 32
             Encrypted: true
+        - DeviceName: /dev/xvdc
+          Ebs:
+            VolumeSize: 100
+            Encrypted: true
+
       IamInstanceProfile: !Ref IamInstanceProfile
       ImageId: !FindInMap [AMIMap, us-east-2, ubuntu18]
       InstanceType: t2.micro
@@ -93,5 +97,11 @@ Outputs:
     Value: !GetAtt
       - myEC2Instance
       - PrivateIp
+  PublicIP:
+    Condition: CreateEIP
+    Value: !GetAtt
+      - myEC2Instance
+      - PublicIp
+  
 
   # END OF OUTPUTS

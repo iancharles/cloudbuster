@@ -4,12 +4,7 @@ Description: Template for EC2 instances
 # Metadata: 
 
 Parameters:
-  OS:
-    Type: String
-    AllowedValues:
-      - ubuntu16
-      - ubuntu18
-      - suse
+  # VAR_PARAM_OS
   AvailabilityZone:
     Type: AWS::EC2::AvailabilityZone::Name
     Default: VAR_REGIONa
@@ -60,7 +55,7 @@ Resources:
             VolumeSize: VAR_DATAB
             Encrypted: true
       IamInstanceProfile: !Ref IamInstanceProfile
-      ImageId: !FindInMap [AMIMap, !Ref "OS"]
+      ImageId: !FindInMap [AMIMap, VAR_REGION, VAR_OS]
       InstanceType: VAR_INSTANCE_TYPE
       KeyName: VAR_KEYNAME
       SecurityGroupIds:
@@ -75,7 +70,7 @@ Resources:
         hostnamectl set-hostname VAR_HOSTNAME
         echo "VAR_USER" > /home/ubuntu/user.txt
         echo "VAR_TIMEZONE" > /home/ubuntu/timezone.txt
-        timedatectl set-timezone VAR_TIMEZONE
+        # timedatectl set-timezone VAR_TIMEZONE
         adduser "VAR_USER"
         cp -R /home/ubuntu/.ssh /home/VAR_USER/.ssh
         chown -R VAR_USER: /home/VAR_USER/

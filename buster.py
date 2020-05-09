@@ -29,11 +29,13 @@ value_dict = {}
 
 disks = args.disks
 
+allowed_os = ['ubuntu16', 'ubuntu18', 'suse']
 
 source_file = "stacks/000004.yml"
 build_file = "stacks/000005.yml"
 
-vpc = "vpc-06db524c77128c292"
+# vpc = "vpc-06db524c77128c292"
+vpc = args.vpc
 profile = "default"
 
 if args.region:
@@ -56,6 +58,7 @@ if args.keyname:
     value_dict["VAR_KEYNAME"] = args.keyname
 
 if args.timezone:
+    value_dict["# timedatectl"] = "timedatectl"
     value_dict["VAR_TIMEZONE"] = args.timezone
 
 if args.user:
@@ -63,6 +66,19 @@ if args.user:
 
 if args.region:
     value_dict["VAR_REGION"] = args.region
+
+# If OS is entered, use it. Else, create as parameter
+if args.os in allowed_os:
+    value_dict["VAR_OS"] = args.os
+else:
+    os_params = "OS:"
+    os_params += "\n    Type: String"
+    os_params += "\n    AllowedValues:"
+    for os in allowed_os:
+        os_params += "\n      - " + os
+
+    value_dict["# VAR_PARAM_OS"] = os_params
+    value_dict["VAR_OS"] = "!Ref OS"
 
 print(value_dict)
 

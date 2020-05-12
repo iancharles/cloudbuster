@@ -1,16 +1,19 @@
+###############
+# CLOUDBUSTER #
+###############
+
 import boto3
 import argparse
 from regionget import get_region
-# import sys
-# from subnetget import get_subnets
-# from amiget import get_amis
+from amiget import get_amimap
+import sys
+from subnetget import get_subnets
 # from sg_get import get_sgs
 # from add_block_device import add_block_device
 # from userdata_get import get_userdata
 
 # ADD ARGUMENTS
 parser = argparse.ArgumentParser()
-parser.add_argument('-r', '--region', help="region of VPC")
 parser.add_argument('-v', '--vpc', help="VPC to get vars")
 parser.add_argument('-o','--os', help="operating system")
 parser.add_argument('-t','--type', help="instance type (size)")
@@ -22,39 +25,53 @@ parser.add_argument('--profile', help="AWS CLI Profile")
 parser.add_argument('--network', help="Public or Private subnet")
 parser.add_argument('--timezone', help='Timezone of instance')
 parser.add_argument('--user', help='default user on instance')
-parser.add_argument('-d', '--disks', nargs='+', help='add data volumes')
+parser.add_argument('-d', '--disks', nargs='+', help='add data volumes', default=None)
 args = parser.parse_args()
 
 value_dict = {}
+skipped_opts = {}
+skipped_req = {}
 
 allowed_os = ['ubuntu16', 'ubuntu18', 'suse']
-
+allowed_regions = ['us-east-1', 'us-east-2', 'us-west-2']
 
 source_file = "stacks/000004.yml"
 build_file = "stacks/000005.yml"
 
-# vpc = "vpc-06db524c77128c292"
-vpc = args.vpc
+# GET VPC - REQUIRED!
+if args.vpc:
+    vpc = args.vpc
+else:
+    print("VPC is required for all builds.")
+    print("Exiting...")
+    sys.exit(1)
+
+
 profile = "default"
 
-if args.region:
-    region = args.region
-else:
-    region = get_region(profile, vpc)
+
+# GET AUTOMATIC VALUES
+region = get_region(profile, vpc, allowed_regions)
 value_dict["VAR_REGION"] = region
 
-print(region)
+value_dict["# VAR_AMI_MAP"] = get_amimap(profile, region)
+
+value_dict["# VAR_SUBNET_MAP"] = get_subnets(profile, allowed_regions)
+
 # VALIDATE ARGUMENTS
-
-
 if args.type:
     value_dict["VAR_INSTANCE_TYPE"] = args.type
+else:
+    skipped_req["type"] = "No default"
 
 if args.hostname:
     value_dict["VAR_HOSTNAME"] = args.hostname
 
 if args.keyname:
     value_dict["VAR_KEYNAME"] = args.keyname
+#add in logic to look for default values
+else:
+    skipped_opts["keyname"] = ""
 
 if args.timezone:
     value_dict["# timedatectl"] = "timedatectl"
@@ -62,9 +79,10 @@ if args.timezone:
 
 if args.user:
     value_dict["VAR_USER"] = args.user
+else:
+    skipped_req["user"] = "No Default"
 
-if args.region:
-    value_dict["VAR_REGION"] = args.region
+
 
 # If OS is entered, use it. Else, create as parameter
 if args.os in allowed_os:
@@ -78,28 +96,46 @@ else:
 
     value_dict["# VAR_PARAM_OS"] = os_params
     value_dict["VAR_OS"] = "!Ref OS"
+    skipped_opts["OS // Allowed Values:"] = allowed_os
 
 
 # If disks are entered, add them. Else, ignore
-disks = args.disks
-block_device_pool = ['/dev/xvdb', '/dev/xvdc', '/dev/xvdd', '/dev/xvde' ]
-counter = 0
-disk_params = ""
+if args.disks:
+    disks = args.disks
+    block_device_pool = ['/dev/xvdb', '/dev/xvdc', '/dev/xvdd', \
+        '/dev/xvde', '/dev/xvdf' ]
+    counter = 0
+    disk_params = ""
 
-for disk in disks:
-    disk_params += "        - DeviceName: " + block_device_pool[counter] + "\n"
-    disk_params += "          Ebs:" + "\n"
-    disk_params += "            VolumeSize: " + disk + "\n"
-    disk_params += "            Encrypted: true"
-    counter += 1
-    if counter < len(block_device_pool):
-        disk_params += "\n"
-        
-value_dict["# VAR_PARAM_DISKS"] = disk_params
+    for disk in disks:
+        disk_params += "        - DeviceName: " + block_device_pool[counter] + "\n"
+        disk_params += "          Ebs:" + "\n"
+        disk_params += "            VolumeSize: " + disk + "\n"
+        disk_params += "            Encrypted: true"
+        counter += 1
+        if counter < len(disks):
+            disk_params += "\n"
+            
+    value_dict["# VAR_PARAM_DISKS"] = disk_params
+else:
+    skipped_opts["Disks"] = "None"
 
 
+## CHECK VALUES
+if skipped_req:
+    print("You forgot the following mandatory parameters:")
+    for key, value in skipped_req.items():
+        print(f"{key}: {value}")
+    sys.exit(1)
 
-print(value_dict)
+if skipped_opts:
+    print("You skipped the following optional parameters.")
+    print("They are not required, but please confirm you did not \
+omit them by accident")
+    for key, value in skipped_opts.items():
+        print(f"{key}: {value}")
+
+# print(value_dict)
 
 
 with open(source_file, 'r') as f:

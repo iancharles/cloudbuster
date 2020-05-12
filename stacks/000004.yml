@@ -20,22 +20,9 @@ Parameters:
 
 # Mappings will need to be created by CB #
 Mappings:
-  AMIMap:
-    us-east-2:
-      ubuntu16: ami-0564dd36709a7a5b2
-      ubuntu18: ami-0e8d1a9b450baa691
-      suse: ami-0eb964f1cd28eb94d
-# Subnetmap function will need to be scoped down to region
-  SubnetMap:
-    us-east-2a:
-      Public: subnet-0ca766e0aba0bb36e
-      Private: subnet-09fad3f8b283a63ef
-    us-east-2c:
-      Public: subnet-08b783efe3bfed00e
-      Private: subnet-070bc9c800825dbd2
-    us-east-2b:
-      Public: subnet-0947b6bebe5425ec2
-      Private: subnet-0e0cc0412cd1417c7
+# VAR_AMI_MAP
+# VAR_SUBNET_MAP
+
 
 Conditions: 
   CreateEIP: !Equals [ !Ref SubnetType, Public]

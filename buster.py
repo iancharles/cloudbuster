@@ -2,6 +2,7 @@
 # CLOUDBUSTER #
 ###############
 
+
 import boto3
 import argparse
 from regionget import get_region
@@ -9,6 +10,7 @@ from amiget import get_amimap
 import sys
 from subnetget import get_subnets
 from sg_get import get_sgs
+from vpcget import get_vpc
 # from add_block_device import add_block_device
 # from userdata_get import get_userdata
 
@@ -21,6 +23,7 @@ parser.add_argument('-z','--zone', help="availability zone")
 parser.add_argument('--hostname', help='name of instance')
 parser.add_argument('--keyname', help='name of keypair')
 parser.add_argument('--role', help='instance iam role')
+parser.add_argument('--region', help='region of build')
 parser.add_argument('--profile', help="AWS CLI Profile")
 parser.add_argument('--network', help="Public or Private subnet")
 parser.add_argument('--timezone', help='Timezone of instance')
@@ -39,34 +42,17 @@ allowed_regions = ['us-east-1', 'us-east-2', 'us-west-2']
 source_file = "stacks/000004.yml"
 build_file = "stacks/000005.yml"
 
+profile = "default"
+
 # GET VPC - REQUIRED!
 if args.vpc:
     vpc = args.vpc
+elif args.region:
+    vpc = get_vpc(profile, args.region)
 else:
     print("VPC is required for all builds.")
     print("Exiting...")
     sys.exit(1)
-
-
-profile = "default"
-
-
-# GET AUTOMATIC VALUES
-region = get_region(profile, vpc, allowed_regions)
-value_dict["VAR_REGION"] = region
-
-value_dict["# VAR_AMI_MAP"] = get_amimap(profile, region)
-
-value_dict["# VAR_SUBNET_MAP"] = get_subnets(profile, allowed_regions)
-
-# USER GEN OR PROMPTED
-if args.sgs:
-    sgs_fmt = ""
-    for group in args.sgs:
-        sgs_fmt += "\n        - " + group
-    value_dict["VAR_SECURITY_GROUPS"] = sgs_fmt
-else:
-    value_dict["VAR_SECURITY_GROUPS"] = get_sgs(vpc, region, profile)
 
 # USER GEN - REQUIRED
 
@@ -80,13 +66,43 @@ if args.user:
 else:
     skipped_req["user"] = "No Default"
 
+if skipped_req:
+    print("You forgot the following mandatory parameters:")
+    for key, value in skipped_req.items():
+        print(f"{key}: {value}")
+    sys.exit(1)
+
+
+
+
+# GET AUTOMATIC VALUES
+region = get_region(profile, vpc, allowed_regions)
+value_dict["VAR_REGION"] = region
+
+value_dict["# VAR_AMI_MAP"] = get_amimap(profile, region)
+
+value_dict["# VAR_SUBNET_MAP"] = get_subnets(profile, allowed_regions)
+
+
+
+# USER GEN OR PROMPTED
+if args.sgs:
+    sgs_fmt = ""
+    for group in args.sgs:
+        sgs_fmt += "\n        - " + group
+    value_dict["VAR_SECURITY_GROUPS"] = sgs_fmt
+else:
+    value_dict["VAR_SECURITY_GROUPS"] = get_sgs(vpc, region, profile)
+
+
 # USER GEN - OPTIONAL
 
 if args.hostname:
     value_dict["VAR_HOSTNAME"] = args.hostname
 # possibly add stupid default
 else:
-    skipped_opts["hostname"] = "Cloud Host 1"
+    value_dict["VAR_HOSTNAME"] = "Cloud Host 1"
+    skipped_opts["hostname"] = value_dict["VAR_HOSTNAME"]
 
 if args.keyname:
     value_dict["VAR_KEYNAME"] = args.keyname
@@ -101,6 +117,19 @@ if args.timezone:
 else:
     skipped_opts["timezone"] = "UTC"
 
+
+# If network type is entered, use it. Else, create as parameter
+if args.network:
+    value_dict["VAR_NETWORK"] = args.network
+else:
+    network_params = "SubnetType:"
+    network_params += "\n    Type: String\n    AllowedValues:"
+    network_params += "\n       - Private\n       - Public"
+    network_params += "\n    Default: Private"
+
+    value_dict["# VAR_PARAM_NETWORK"] = network_params
+    value_dict["VAR_NETWORK"] = "!Ref SubnetType"
+    skipped_opts["network"] = "Private"
 
 # If role is entered, use it. Else, create as parameter
 if args.role:
@@ -133,7 +162,7 @@ else:
 if args.disks:
     disks = args.disks
     block_device_pool = ['/dev/xvdb', '/dev/xvdc', '/dev/xvdd', \
-        '/dev/xvde', '/dev/xvdf' ]
+        '/dev/xvde', '/dev/xvdf', '/dev/xvdg', '/dev/xvdh' ]
     counter = 0
     disk_params = ""
 
@@ -152,17 +181,14 @@ else:
 
 
 ## CHECK VALUES
-if skipped_req:
-    print("You forgot the following mandatory parameters:")
-    for key, value in skipped_req.items():
-        print(f"{key}: {value}")
-    sys.exit(1)
+
 
 if skipped_opts:
     print("You skipped the following optional parameters.")
     print("They are not required, but please confirm you did not \
 omit them by accident")
     print("Default values shown when available")
+    print("\n#-------------#\n")
     for key, value in skipped_opts.items():
         print(f"{key}: {value}")
 

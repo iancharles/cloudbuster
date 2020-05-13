@@ -8,12 +8,7 @@ Parameters:
   AvailabilityZone:
     Type: AWS::EC2::AvailabilityZone::Name
     Default: VAR_REGIONa
-  SubnetType:
-    Type: String
-    AllowedValues:
-      - Private
-      - Public
-    Default: Private
+  # VAR_PARAM_NETWORK
   # VAR_PARAM_ROLE
 
 # Mappings will need to be created by CB #
@@ -40,7 +35,7 @@ Resources:
       InstanceType: VAR_INSTANCE_TYPE
       KeyName: VAR_KEYNAME
       SecurityGroupIds: VAR_SECURITY_GROUPS
-      SubnetId: !FindInMap [SubnetMap, !Ref AvailabilityZone, !Ref SubnetType]
+      SubnetId: !FindInMap [SubnetMap, !Ref AvailabilityZone, VAR_NETWORK]
       Tags:
         - Key: Name
           Value: "VAR_HOSTNAME"

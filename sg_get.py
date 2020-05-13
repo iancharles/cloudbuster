@@ -30,12 +30,13 @@ def get_sgs(vpc, region_nm, profile_nm):
         print(f"\nAvailable Security Groups for {vpc}:\n")
         for item in available_sgs['SecurityGroups']:
             print(f"{item['GroupName']} - {item['Description']}")
-        print("\n#------------------#\n")
-    print("Choose from Available Security Groups:\n")
+        print("\n#-------------#\n")
+    print("\nChoose from Available Security Groups:\n")
     for item in available_sgs['SecurityGroups']:
         if input(f"{item['GroupName']} - {item['Description']} [y/N]: ").lower() == 'y':
             selected_security_groups.append(item["GroupId"])
     
+    print("\n#-------------#\n")
     # security_groups = dumps(selected_security_groups)
 
     sg_output = ""

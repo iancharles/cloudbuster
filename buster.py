@@ -8,7 +8,7 @@ from regionget import get_region
 from amiget import get_amimap
 import sys
 from subnetget import get_subnets
-# from sg_get import get_sgs
+from sg_get import get_sgs
 # from add_block_device import add_block_device
 # from userdata_get import get_userdata
 
@@ -26,6 +26,7 @@ parser.add_argument('--network', help="Public or Private subnet")
 parser.add_argument('--timezone', help='Timezone of instance')
 parser.add_argument('--user', help='default user on instance')
 parser.add_argument('-d', '--disks', nargs='+', help='add data volumes', default=None)
+parser.add_argument('--sgs', nargs='+', help='add security groups', default=None)
 args = parser.parse_args()
 
 value_dict = {}
@@ -58,14 +59,34 @@ value_dict["# VAR_AMI_MAP"] = get_amimap(profile, region)
 
 value_dict["# VAR_SUBNET_MAP"] = get_subnets(profile, allowed_regions)
 
-# VALIDATE ARGUMENTS
+# USER GEN OR PROMPTED
+if args.sgs:
+    sgs_fmt = ""
+    for group in args.sgs:
+        sgs_fmt += "\n        - " + group
+    value_dict["VAR_SECURITY_GROUPS"] = sgs_fmt
+else:
+    value_dict["VAR_SECURITY_GROUPS"] = get_sgs(vpc, region, profile)
+
+# USER GEN - REQUIRED
+
 if args.type:
     value_dict["VAR_INSTANCE_TYPE"] = args.type
 else:
     skipped_req["type"] = "No default"
 
+if args.user:
+    value_dict["VAR_USER"] = args.user
+else:
+    skipped_req["user"] = "No Default"
+
+# USER GEN - OPTIONAL
+
 if args.hostname:
     value_dict["VAR_HOSTNAME"] = args.hostname
+# possibly add stupid default
+else:
+    skipped_opts["hostname"] = "Cloud Host 1"
 
 if args.keyname:
     value_dict["VAR_KEYNAME"] = args.keyname
@@ -73,14 +94,12 @@ if args.keyname:
 else:
     skipped_opts["keyname"] = ""
 
+
 if args.timezone:
     value_dict["# timedatectl"] = "timedatectl"
     value_dict["VAR_TIMEZONE"] = args.timezone
-
-if args.user:
-    value_dict["VAR_USER"] = args.user
 else:
-    skipped_req["user"] = "No Default"
+    skipped_opts["timezone"] = "UTC"
 
 
 
@@ -132,6 +151,7 @@ if skipped_opts:
     print("You skipped the following optional parameters.")
     print("They are not required, but please confirm you did not \
 omit them by accident")
+    print("Default values shown when available")
     for key, value in skipped_opts.items():
         print(f"{key}: {value}")
 

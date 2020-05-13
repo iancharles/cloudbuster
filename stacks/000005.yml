@@ -61,20 +61,11 @@ Resources:
           Ebs:
             VolumeSize: 40
             Encrypted: true
-        - DeviceName: /dev/xvdc
-          Ebs:
-            VolumeSize: 100
-            Encrypted: true
-        - DeviceName: /dev/xvdd
-          Ebs:
-            VolumeSize: 500
-            Encrypted: true
       IamInstanceProfile: !Ref IamInstanceProfile
       ImageId: !FindInMap [AMIMap, us-east-2, ubuntu18]
       InstanceType: t2.micro
       KeyName: VAR_KEYNAME
-      SecurityGroupIds:
-        - sg-0560f1f9aff2ce8bf
+      SecurityGroupIds: 
         - sg-0946fa03e2571cd62
       SubnetId: !FindInMap [SubnetMap, !Ref AvailabilityZone, !Ref SubnetType]
       Tags:

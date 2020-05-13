@@ -41,9 +41,7 @@ Resources:
       ImageId: !FindInMap [AMIMap, VAR_REGION, VAR_OS]
       InstanceType: VAR_INSTANCE_TYPE
       KeyName: VAR_KEYNAME
-      SecurityGroupIds:
-        - sg-0560f1f9aff2ce8bf
-        - sg-0946fa03e2571cd62
+      SecurityGroupIds: VAR_SECURITY_GROUPS
       SubnetId: !FindInMap [SubnetMap, !Ref AvailabilityZone, !Ref SubnetType]
       Tags:
         - Key: Name

@@ -14,9 +14,7 @@ Parameters:
       - Private
       - Public
     Default: Private
-  IamInstanceProfile:
-    Type: String
-    Default: EC2-S3-Access
+  # VAR_PARAM_ROLE
 
 # Mappings will need to be created by CB #
 Mappings:
@@ -37,7 +35,7 @@ Resources:
             VolumeSize: 64
             Encrypted: true
 # VAR_PARAM_DISKS
-      IamInstanceProfile: !Ref IamInstanceProfile
+      IamInstanceProfile: VAR_ROLE
       ImageId: !FindInMap [AMIMap, VAR_REGION, VAR_OS]
       InstanceType: VAR_INSTANCE_TYPE
       KeyName: VAR_KEYNAME

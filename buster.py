@@ -92,7 +92,7 @@ if args.keyname:
     value_dict["VAR_KEYNAME"] = args.keyname
 #add in logic to look for default values
 else:
-    skipped_opts["keyname"] = ""
+    skipped_opts["keyname"] = "None"
 
 
 if args.timezone:
@@ -102,6 +102,17 @@ else:
     skipped_opts["timezone"] = "UTC"
 
 
+# If role is entered, use it. Else, create as parameter
+if args.role:
+    value_dict["VAR_ROLE"] = args.role
+else:
+    role_params = "IamInstanceProfile:"
+    role_params += "\n    Type: String"
+    role_params += "\n    Default: EC2-S3-Access"
+
+    value_dict["# VAR_PARAM_ROLE"] = role_params
+    value_dict["VAR_ROLE"] = "!Ref IamInstanceProfile"
+    skipped_opts["role"] = "EC2-S3-Access"
 
 # If OS is entered, use it. Else, create as parameter
 if args.os in allowed_os:

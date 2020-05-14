@@ -4,12 +4,7 @@ Description: Template for EC2 instances
 # Metadata: 
 
 Parameters:
-  OS:
-    Type: String
-    AllowedValues:
-      - ubuntu16
-      - ubuntu18
-      - suse
+  # VAR_PARAM_OS
   AvailabilityZone:
     Type: AWS::EC2::AvailabilityZone::Name
     Default: us-east-2a
@@ -62,7 +57,7 @@ Resources:
             VolumeSize: 40
             Encrypted: true
       IamInstanceProfile: !Ref IamInstanceProfile
-      ImageId: !FindInMap [AMIMap, us-east-2, !Ref OS]
+      ImageId: !FindInMap [AMIMap, us-east-2, ubuntu18]
       InstanceType: t2.micro
       KeyName: VAR_KEYNAME
       SecurityGroupIds: 

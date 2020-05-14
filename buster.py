@@ -5,9 +5,11 @@
 
 import boto3
 import argparse
+import sys
+
 from regionget import get_region
 from amiget import get_amimap
-import sys
+from keypairget import get_key_pairs
 from subnetget import get_subnets
 from sg_get import get_sgs
 from vpcget import get_vpc
@@ -111,10 +113,12 @@ else:
 
 if args.keyname:
     value_dict["VAR_KEYNAME"] = args.keyname
-#add in logic to look for default values
 else:
-    skipped_opts["keyname"] = "None"
-
+    key = get_key_pairs(profile, region)
+    if key:
+        value_dict["VAR_KEYNAME"] = key
+    else:
+        skipped_opts["keypair"] = "None"
 
 if args.timezone:
     value_dict["# timedatectl"] = "timedatectl"

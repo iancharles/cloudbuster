@@ -13,12 +13,7 @@ Parameters:
   AvailabilityZone:
     Type: AWS::EC2::AvailabilityZone::Name
     Default: us-east-2a
-  SubnetType:
-    Type: String
-    AllowedValues:
-       - Private
-       - Public
-    Default: Private
+  # VAR_PARAM_NETWORK
   IamInstanceProfile:
     Type: String
     Default: EC2-S3-Access
@@ -71,8 +66,7 @@ Resources:
       InstanceType: t2.micro
       KeyName: VAR_KEYNAME
       SecurityGroupIds: 
-        - sg-044dbdc57f842cb04
-      SubnetId: !FindInMap [SubnetMap, !Ref AvailabilityZone, !Ref SubnetType]
+      SubnetId: !FindInMap [SubnetMap, !Ref AvailabilityZone, Public]
       Tags:
         - Key: Name
           Value: "Cloud Host 1"

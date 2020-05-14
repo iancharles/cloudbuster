@@ -11,6 +11,7 @@ import sys
 from subnetget import get_subnets
 from sg_get import get_sgs
 from vpcget import get_vpc
+from vpc_sanitize import sanitize_vpc
 # from add_block_device import add_block_device
 # from userdata_get import get_userdata
 
@@ -44,15 +45,22 @@ build_file = "stacks/000005.yml"
 
 profile = "default"
 
-# GET VPC - REQUIRED!
-if args.vpc:
-    vpc = args.vpc
-elif args.region:
-    vpc = get_vpc(profile, args.region)
+# GET VPC and REGION - REQUIRED!
+if args.region:
+    region = args.region
+    if args.vpc:
+        vpc = sanitize_vpc(profile, args.vpc, [region])
 else:
-    print("VPC is required for all builds.")
-    print("Exiting...")
-    sys.exit(1)
+    if args.vpc:
+        vpc = sanitize_vpc(profile, args.vpc, allowed_regions)
+        region = get_region(profile, args.vpc, allowed_regions)
+    else:
+        print("VPC or Region is required for all builds.")
+        print("Exiting...")
+        sys.exit(1)
+
+value_dict["VAR_REGION"] = region
+
 
 # USER GEN - REQUIRED
 
@@ -76,8 +84,6 @@ if skipped_req:
 
 
 # GET AUTOMATIC VALUES
-region = get_region(profile, vpc, allowed_regions)
-value_dict["VAR_REGION"] = region
 
 value_dict["# VAR_AMI_MAP"] = get_amimap(profile, region)
 
@@ -99,7 +105,6 @@ else:
 
 if args.hostname:
     value_dict["VAR_HOSTNAME"] = args.hostname
-# possibly add stupid default
 else:
     value_dict["VAR_HOSTNAME"] = "Cloud Host 1"
     skipped_opts["hostname"] = value_dict["VAR_HOSTNAME"]
@@ -119,8 +124,10 @@ else:
 
 
 # If network type is entered, use it. Else, create as parameter
-if args.network:
-    value_dict["VAR_NETWORK"] = args.network
+if args.network and args.network.lower() == 'public':
+    value_dict["VAR_NETWORK"] = "Public"
+elif args.network:
+    value_dict["VAR_NETWORK"] = "Private"
 else:
     network_params = "SubnetType:"
     network_params += "\n    Type: String\n    AllowedValues:"

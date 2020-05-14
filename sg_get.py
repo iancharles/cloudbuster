@@ -25,7 +25,7 @@ def get_sgs(vpc, region_nm, profile_nm):
     
     selected_security_groups = []
     counter = 0
-    display = input("Would you like to see the available security groups first? [y/N] ").lower()
+    display = input("\nWould you like to see the available security groups first? [y/N] ").lower()
     if display == 'y':
         print(f"\nAvailable Security Groups for {vpc}:\n")
         for item in available_sgs['SecurityGroups']:

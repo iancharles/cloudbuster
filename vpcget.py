@@ -1,4 +1,5 @@
 import boto3
+import sys
 
 def get_vpc(profile, region):
     session = boto3.Session(profile_name=profile, region_name=region)
@@ -41,11 +42,17 @@ def get_vpc(profile, region):
         counter += 1
     try:
         choice = int(input("Enter the number of the VPC to select: "))
-        return displayed_vpcs[int(choice)]
+        if choice in range(0,counter):
+            return displayed_vpcs[int(choice)]
+        else:
+            print("Invalid choice\nExiting now...")
+            sys.exit(1)
     except ValueError:
-        print("Please enter a number")
+        print("Please enter a valid number.\nExiting now...")
+        sys.exit(1)
     except IndexError:
         print("That number is out of range")
+        sys.exit(1)
 
 
     

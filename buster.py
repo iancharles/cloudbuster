@@ -6,6 +6,8 @@
 import boto3
 import argparse
 import sys
+import datetime
+import os
 
 from regionget import get_region
 from amiget import get_amimap
@@ -14,12 +16,13 @@ from subnetget import get_subnets
 from sg_get import get_sgs
 from vpcget import get_vpc
 from vpc_sanitize import sanitize_vpc
+
 # from add_block_device import add_block_device
 # from userdata_get import get_userdata
 
 # ADD ARGUMENTS
 parser = argparse.ArgumentParser()
-parser.add_argument('-v', '--vpc', help="VPC to get vars")
+parser.add_argument('-v', '--vpc', help="VPC (VPC-id or friendly name)")
 parser.add_argument('-o','--os', help="operating system")
 parser.add_argument('-t','--type', help="instance type (size)")
 parser.add_argument('-z','--zone', help="availability zone")
@@ -43,15 +46,21 @@ allowed_os = ['ubuntu16', 'ubuntu18', 'suse']
 allowed_regions = ['us-east-1', 'us-east-2', 'us-west-2']
 
 source_file = "stacks/000004.yml"
-build_file = "stacks/000005.yml"
+# build_file = "stacks/000005.yml"
+build_file = '{:%Y-%m-%d-%H:%M}'.format(datetime.datetime.now()) + ".yml"
 
-profile = "default"
+if 'AWS_PROFILE' in os.environ:
+    profile = os.environ['AWS_PROFILE']
+
+# profile = "default"
 
 # GET VPC and REGION - REQUIRED!
 if args.region:
     region = args.region
     if args.vpc:
         vpc = sanitize_vpc(profile, args.vpc, [region])
+    else:
+        vpc = get_vpc(profile, region)
 else:
     if args.vpc:
         vpc = sanitize_vpc(profile, args.vpc, allowed_regions)
@@ -66,16 +75,30 @@ value_dict["VAR_REGION"] = region
 
 # USER GEN - REQUIRED
 
+# Instance type
 if args.type:
     value_dict["VAR_INSTANCE_TYPE"] = args.type
 else:
     skipped_req["type"] = "No default"
 
+# Default system user - maybe only necessary for linux
 if args.user:
     value_dict["VAR_USER"] = args.user
 else:
     skipped_req["user"] = "No Default"
 
+# key pair
+if args.keyname:
+    value_dict["VAR_KEYNAME"] = args.keyname
+else:
+    key = get_key_pairs(profile, region)
+    if key:
+        value_dict["VAR_KEYNAME"] = key
+    else:
+        value_dict["VAR_KEYNAME"] = ""
+        skipped_req["keypair"] = "None"
+
+# Output missing required values to user
 if skipped_req:
     print("You forgot the following mandatory parameters:")
     for key, value in skipped_req.items():
@@ -111,14 +134,7 @@ else:
     value_dict["VAR_HOSTNAME"] = "Cloud Host 1"
     skipped_opts["hostname"] = value_dict["VAR_HOSTNAME"]
 
-if args.keyname:
-    value_dict["VAR_KEYNAME"] = args.keyname
-else:
-    key = get_key_pairs(profile, region)
-    if key:
-        value_dict["VAR_KEYNAME"] = key
-    else:
-        skipped_opts["keypair"] = "None"
+
 
 if args.timezone:
     value_dict["# timedatectl"] = "timedatectl"

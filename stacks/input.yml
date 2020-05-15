@@ -1,0 +1,77 @@
+AWSTemplateFormatVersion: 2010-09-09
+Description: Template for EC2 instances
+
+# Metadata: 
+
+Parameters:
+  # VAR_PARAM_OS
+  AvailabilityZone:
+    Type: AWS::EC2::AvailabilityZone::Name
+    Default: VAR_REGIONa
+  # VAR_PARAM_NETWORK
+  # VAR_PARAM_ROLE
+
+# Mappings will need to be created by CB #
+Mappings:
+# VAR_AMI_MAP
+# VAR_SUBNET_MAP
+
+
+Conditions: 
+  CreateEIP: !Equals [ !Ref SubnetType, Public]
+
+Resources: 
+  myEC2Instance:
+    Type: AWS::EC2::Instance
+    Properties:
+      BlockDeviceMappings:
+        - DeviceName: /dev/sda1
+          Ebs:
+            VolumeSize: 64
+            Encrypted: true
+# VAR_PARAM_DISKS
+      IamInstanceProfile: VAR_ROLE
+      ImageId: !FindInMap [AMIMap, VAR_REGION, VAR_OS]
+      InstanceType: VAR_INSTANCE_TYPE
+      KeyName: VAR_KEYNAME
+      SecurityGroupIds: VAR_SECURITY_GROUPS
+      SubnetId: !FindInMap [SubnetMap, !Ref AvailabilityZone, VAR_NETWORK]
+      Tags:
+        - Key: Name
+          Value: "VAR_HOSTNAME"
+      UserData: !Base64 |
+        #!/bin/bash -ex
+        hostnamectl set-hostname VAR_HOSTNAME
+        echo "VAR_USER" > /home/ubuntu/user.txt
+        echo "VAR_TIMEZONE" > /home/ubuntu/timezone.txt
+        # timedatectl set-timezone VAR_TIMEZONE
+        adduser "VAR_USER"
+        cp -R /home/ubuntu/.ssh /home/VAR_USER/.ssh
+        chown -R VAR_USER: /home/VAR_USER/
+        echo "VAR_USER ALL=(ALL) NOPASSWD: ALL" >> /etc/sudoers.d/VAR_USER
+        chage -I -1 -m 0 -M 99999 -E -1 VAR_USER
+        echo "VAR_USER" > /home/VAR_USER/user.txt
+        echo "VAR_TIMEZONE" > /home/VAR_USER/timezone.txt
+        reboot now
+  ElasticIP:
+    Type: AWS::EC2::EIP
+    Condition: CreateEIP
+    Properties:
+      Domain: vpc
+      InstanceId: !Ref myEC2Instance
+
+  # END OF RESOURCES
+
+Outputs:
+  PrivateIP:
+    Value: !GetAtt
+      - myEC2Instance
+      - PrivateIp
+  PublicIP:
+    Condition: CreateEIP
+    Value: !GetAtt
+      - myEC2Instance
+      - PublicIp
+  
+
+  # END OF OUTPUTS

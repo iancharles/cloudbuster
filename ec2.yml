@@ -16,7 +16,7 @@ Parameters:
     Default: VAR_NETWORK
   # VAR_PARAM_ROLE
 
-# Mappings will need to be created by CB #
+# Mappings created by CB #
 Mappings:
 # VAR_AMI_MAP
 # VAR_SUBNET_MAP
@@ -44,20 +44,7 @@ Resources:
       Tags:
         - Key: Name
           Value: "VAR_HOSTNAME"
-      UserData: !Base64 |
-        #!/bin/bash -ex
-        hostnamectl set-hostname "VAR_HOSTNAME"
-        echo "VAR_USER" > /home/ubuntu/user.txt
-        echo "VAR_TIMEZONE" > /home/ubuntu/timezone.txt
-        # timedatectl set-timezone VAR_TIMEZONE
-        adduser "VAR_USER"
-        cp -R /home/ubuntu/.ssh /home/VAR_USER/.ssh
-        chown -R VAR_USER: /home/VAR_USER/
-        echo "VAR_USER ALL=(ALL) NOPASSWD: ALL" >> /etc/sudoers.d/VAR_USER
-        chage -I -1 -m 0 -M 99999 -E -1 VAR_USER
-        echo "VAR_USER" > /home/VAR_USER/user.txt
-        echo "VAR_TIMEZONE" > /home/VAR_USER/timezone.txt
-        reboot now
+# VAR_UD
   ElasticIP:
     Type: AWS::EC2::EIP
     Condition: CreateEIP

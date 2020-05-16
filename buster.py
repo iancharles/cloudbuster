@@ -2,7 +2,6 @@
 # CLOUDBUSTER #
 ###############
 
-
 import boto3
 import argparse
 import sys
@@ -12,8 +11,10 @@ import os
 from regionget import get_region
 from amiget import get_amimap
 from keypairget import get_key_pairs
+from size_get import get_sizes
 from subnetget import get_subnets
 from sg_get import get_sgs
+from userdata import add_user_data
 from vpcget import get_vpc
 from vpc_sanitize import sanitize_vpc
 
@@ -25,7 +26,7 @@ parser.add_argument('-o','--os', help="operating system")
 parser.add_argument('-t','--type', help="instance type (size)")
 parser.add_argument('-z','--zone', help="availability zone")
 parser.add_argument('--hostname', help='name of instance')
-parser.add_argument('--keyname', help='name of keypair')
+parser.add_argument('-k', '--key', help='name of keypair')
 parser.add_argument('--role', help='instance iam role')
 parser.add_argument('--region', help='region of build')
 parser.add_argument('--profile', help="AWS CLI Profile")
@@ -40,10 +41,11 @@ value_dict = {}
 skipped_opts = {}
 skipped_req = {}
 
-allowed_os = ['ubuntu16', 'ubuntu18', 'suse']
+allowed_os = ['ubuntu16', 'ubuntu18', 'amazonlinux2']
+linux_os = ['ubuntu16', 'ubuntu18', 'amazonlinux2']
 allowed_regions = ['us-east-1', 'us-east-2', 'us-west-2']
 
-source_file = "input.yml"
+source_file = "ec2.yml"
 build_file = '{:%Y-%m-%d-%H:%M}'.format(datetime.datetime.now()) + ".yml"
 
 if args.profile:
@@ -84,17 +86,33 @@ value_dict["VAR_REGION"] = region
 if args.type:
     value_dict["VAR_INSTANCE_TYPE"] = args.type
 else:
-    skipped_req["type"] = "No default"
+    print("\nInstance type is required.")
+    # TO DO: Add instance type generator
+    # print("You can choose to see a list of types before entering a value.")
+    # size_choices = get_sizes(profile, region)
+    # if input("See available types first? [y/N] ").lower() == "y":
+        # print(size_choices)
+    selection = input("\nEnter instance type (size): ")
+    value_dict["VAR_INSTANCE_TYPE"] = selection
+    # if selection in size_choices:
+    #     value_dict["VAR_INSTANCE_TYPE"] = selection
+    # else:
+    #     print("That was not a valid choice. Exiting...")
+    #     sys.exit(1)
+
+    
 
 # Default system user - maybe only necessary for linux
 if args.user:
     value_dict["VAR_USER"] = args.user
+elif not args.os or args.os and args.os not in linux_os:
+    pass
 else:
     skipped_req["user"] = "No Default"
 
 # key pair
-if args.keyname:
-    value_dict["VAR_KEYNAME"] = args.keyname
+if args.key:
+    value_dict["VAR_KEYNAME"] = args.key
 else:
     key = get_key_pairs(profile, region)
     if key:
@@ -105,11 +123,9 @@ else:
 
 # Output missing required values to user
 if skipped_req:
-    print("You forgot the following mandatory parameters:")
+    print("\nYou forgot the following mandatory parameters:\n")
     print(skipped_req)
     sys.exit(1)
-
-
 
 
 # GET AUTOMATIC VALUES
@@ -133,19 +149,22 @@ else:
 # USER GEN - OPTIONAL
 
 if args.hostname:
-    value_dict["VAR_HOSTNAME"] = args.hostname
+    hn = args.hostname
 else:
-    value_dict["VAR_HOSTNAME"] = "Cloud Host 1"
-    skipped_opts["hostname"] = value_dict["VAR_HOSTNAME"]
+    hn = "Cloudbuster Host 1"
+    skipped_opts["hostname"] = hn
 
+value_dict["VAR_HOSTNAME"] = hn
 
 
 if args.timezone:
-    value_dict["# timedatectl"] = "timedatectl"
-    value_dict["VAR_TIMEZONE"] = args.timezone
+    # value_dict["# timedatectl"] = "timedatectl"
+    tz = args.timezone
 else:
-    skipped_opts["timezone"] = "UTC"
+    tz = "UTC"
+    skipped_opts["timezone"] = tz
 
+value_dict["VAR_TIMEZONE"] = tz
 
 # If network type is entered, use it. Else, create as parameter
 if args.network and args.network.lower() == 'public':
@@ -169,16 +188,23 @@ else:
 if args.os in allowed_os:
     value_dict["VAR_OS"] = args.os
 else:
+    print("\nSkipping the os parameter prevents you from entering user data")
+    print("This means you will be limited to using windows instances with")
+    print("any template created.")
     os_params = "OS:"
     os_params += "\n    Type: String"
     os_params += "\n    AllowedValues:"
     for os in allowed_os:
-        os_params += "\n      - " + os
+        if os not in linux_os:
+            os_params += "\n      - " + os
 
     value_dict["# VAR_PARAM_OS"] = os_params
     value_dict["VAR_OS"] = "!Ref OS"
-    skipped_opts["OS // Allowed Values:"] = allowed_os
 
+# Write user_data
+if args.os and args.os in linux_os:
+    value_dict["# VAR_UD"] = add_user_data(
+        args.os, hn, tz, args.user)
 
 # If disks are entered, add them. Else, ignore
 if args.disks:
@@ -202,6 +228,8 @@ else:
     skipped_opts["Disks"] = "None"
 
 
+
+
 ## CHECK VALUES
 
 
@@ -210,9 +238,12 @@ if skipped_opts:
     print("They are not required, but please confirm you did not \
 omit them by accident")
     print("Default values shown when available")
-    print("\n#-------------#\n")
+    print("\n")
     for key, value in skipped_opts.items():
         print(f"{key}: {value}")
+    print("\n#-------------#\n")
+
+
 
 # print(value_dict)
 
@@ -224,3 +255,5 @@ with open(source_file, 'r') as f:
     
 with open(build_file, 'w') as f:
     f.write(build)
+
+print(f"Your Cloudbuster CFT File is now available at {build_file}\n")

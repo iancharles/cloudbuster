@@ -41,7 +41,7 @@ def get_amimap(profile_nm, region_nm):
     # Create empty OS dicts
     ubuntu16_amis = [""]
     ubuntu18_amis = [""]
-    suse_amis = [""]
+    amazonlinux2_amis = [""]
 
     # Sort images into dicts by OS
     for image in all_amis['Images']:
@@ -49,16 +49,16 @@ def get_amimap(profile_nm, region_nm):
             ubuntu16_amis.append(image)
         elif 'ubuntu' in image['Name'].lower() and '18' in image['Name'].lower():
             ubuntu18_amis.append(image)
-        elif 'suse' in image['Name'].lower():
-            suse_amis.append(image)    
+        elif 'amazon' in image['Name'].lower() and '-2-' in image['Name'].lower():
+            amazonlinux2_amis.append(image)    
 
     ubuntu16 = ubuntu16_amis[-1]
     ubuntu18 = ubuntu18_amis[-1]
-    suse = suse_amis[-1]
+    amazonlinux2 = amazonlinux2_amis[-1]
 
     # print(ubuntu16_amis)
     # print(ubuntu18_amis)
-    # print(suse_amis)
+    # print(amazonlinux2_amis)
 
     try:
         # print(f"{ubuntu16['Name']} - {ubuntu16['ImageId']} - {ubuntu16['CreationDate']}")
@@ -72,8 +72,8 @@ def get_amimap(profile_nm, region_nm):
     except:
         pass
     try:
-        # print(f"{suse['Name']} - {suse['ImageId']} - {suse['CreationDate']}")
-        subnet_dict['Mappings']['AMIMap'][region_nm]['suse'] = suse['ImageId']
+        # print(f"{amazonlinux2['Name']} - {amazonlinux2['ImageId']} - {amazonlinux2['CreationDate']}")
+        subnet_dict['Mappings']['AMIMap'][region_nm]['amazonlinux2'] = amazonlinux2['ImageId']
     except:
         pass
 

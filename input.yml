@@ -8,11 +8,11 @@ Parameters:
   AvailabilityZone:
     Type: AWS::EC2::AvailabilityZone::Name
     Default: VAR_REGIONa
-    SubnetType:
+  SubnetType:
     Type: String
     AllowedValues:
-       - Private
-       - Public
+      - Private
+      - Public
     Default: VAR_NETWORK
   # VAR_PARAM_ROLE
 
@@ -46,7 +46,7 @@ Resources:
           Value: "VAR_HOSTNAME"
       UserData: !Base64 |
         #!/bin/bash -ex
-        hostnamectl set-hostname VAR_HOSTNAME
+        hostnamectl set-hostname "VAR_HOSTNAME"
         echo "VAR_USER" > /home/ubuntu/user.txt
         echo "VAR_TIMEZONE" > /home/ubuntu/timezone.txt
         # timedatectl set-timezone VAR_TIMEZONE

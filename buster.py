@@ -45,7 +45,7 @@ skipped_req = {}
 allowed_os = ['ubuntu16', 'ubuntu18', 'suse']
 allowed_regions = ['us-east-1', 'us-east-2', 'us-west-2']
 
-source_file = "stacks/000004.yml"
+source_file = "input.yml"
 # build_file = "stacks/000005.yml"
 build_file = '{:%Y-%m-%d-%H:%M}'.format(datetime.datetime.now()) + ".yml"
 

@@ -8,7 +8,12 @@ Parameters:
   AvailabilityZone:
     Type: AWS::EC2::AvailabilityZone::Name
     Default: VAR_REGIONa
-  # VAR_PARAM_NETWORK
+    SubnetType:
+    Type: String
+    AllowedValues:
+       - Private
+       - Public
+    Default: VAR_NETWORK
   # VAR_PARAM_ROLE
 
 # Mappings will need to be created by CB #

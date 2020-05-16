@@ -6,8 +6,8 @@ from dateutil import parser
 
 
 # Temp variables, replace with logic
-profile_nm = "default"
-region_nm = "us-east-2"
+# profile_nm = "default"
+# region_nm = "us-east-2"
 
 def get_amimap(profile_nm, region_nm):
 

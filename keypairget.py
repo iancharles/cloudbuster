@@ -18,5 +18,3 @@ def get_key_pairs(profile, region):
     except:
         return None
 
-
-# get_key_pairs("default", "us-east-2")

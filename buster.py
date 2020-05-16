@@ -17,8 +17,6 @@ from sg_get import get_sgs
 from vpcget import get_vpc
 from vpc_sanitize import sanitize_vpc
 
-# from add_block_device import add_block_device
-# from userdata_get import get_userdata
 
 # ADD ARGUMENTS
 parser = argparse.ArgumentParser()
@@ -46,13 +44,20 @@ allowed_os = ['ubuntu16', 'ubuntu18', 'suse']
 allowed_regions = ['us-east-1', 'us-east-2', 'us-west-2']
 
 source_file = "input.yml"
-# build_file = "stacks/000005.yml"
 build_file = '{:%Y-%m-%d-%H:%M}'.format(datetime.datetime.now()) + ".yml"
 
-if 'AWS_PROFILE' in os.environ:
+if args.profile:
+    profile = args.profile
+elif 'AWS_PROFILE' in os.environ:
     profile = os.environ['AWS_PROFILE']
-
-# profile = "default"
+else:
+    print("\nProfile is required")
+    print("\nTo set profile in BASH environment variable")
+    print("(Profile must already be configured in ~/.aws/config):")
+    print("$ export AWS_PROFILE=myprofile")
+    print("\nTo set profile using flag in cloudbuster:")
+    print("Add  '--profile myprofile' to your cloudbuster command\n")
+    sys.exit(1)
 
 # GET VPC and REGION - REQUIRED!
 if args.region:
@@ -101,8 +106,7 @@ else:
 # Output missing required values to user
 if skipped_req:
     print("You forgot the following mandatory parameters:")
-    for key, value in skipped_req.items():
-        print(f"{key}: {value}")
+    print(skipped_req)
     sys.exit(1)
 
 
@@ -146,17 +150,8 @@ else:
 # If network type is entered, use it. Else, create as parameter
 if args.network and args.network.lower() == 'public':
     value_dict["VAR_NETWORK"] = "Public"
-elif args.network:
-    value_dict["VAR_NETWORK"] = "Private"
 else:
-    network_params = "SubnetType:"
-    network_params += "\n    Type: String\n    AllowedValues:"
-    network_params += "\n       - Private\n       - Public"
-    network_params += "\n    Default: Private"
-
-    value_dict["# VAR_PARAM_NETWORK"] = network_params
-    value_dict["VAR_NETWORK"] = "!Ref SubnetType"
-    skipped_opts["network"] = "Private"
+    value_dict["VAR_NETWORK"] = "Private"
 
 # If role is entered, use it. Else, create as parameter
 if args.role:

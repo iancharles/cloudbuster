@@ -30,7 +30,7 @@ def get_vpc(profile, region):
             # print(tag["Value"])
             available_vpcs[vpc['VpcId']] = tag["Value"]
 
-    print("VPC is REQUIRED to proceed. Please choose from one below,")
+    print("\nVPC is REQUIRED to proceed. Please choose from one below,")
     print("or hit Q to exit Cloudbuster\n")
 
 
@@ -40,8 +40,9 @@ def get_vpc(profile, region):
         print (f"{counter} - {key} : {value}")
         displayed_vpcs.append(key)
         counter += 1
+
     try:
-        choice = int(input("Enter the number of the VPC to select: "))
+        choice = int(input("\nEnter the number of the VPC to select: "))
         if choice in range(0,counter):
             return displayed_vpcs[int(choice)]
         else:

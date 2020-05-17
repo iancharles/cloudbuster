@@ -9,7 +9,7 @@ def get_iam_role(profile, region):
     all_instance_profiles = iam.list_instance_profiles()
     for instance_profile in all_instance_profiles['InstanceProfiles']:
         available_instance_profiles.append(instance_profile['InstanceProfileName'])
-        default_profile_name = "NightVision-InstanceProfile"
+        default_profile_name = "CloudBuster-InstanceProfile"
         if instance_profile['InstanceProfileName'] == default_profile_name:
             print(f"\nDefault instance profile found. \nWould you like to use {default_profile_name}?\n")
             if input("Hit Y to see other profiles, or any key to use default: ").lower() != 'y':

@@ -44,7 +44,7 @@ skipped_opts = {}
 skipped_req = {}
 
 allowed_os = [
-    'ubuntu16', 'ubuntu18', 'amazonlinux2', 'rhel7', 'centos7'
+    'ubuntu16', 'ubuntu18', 'amazonlinux2', 'rhel7', 'centos7', 'windows2016'
     ]
 linux_os = [
     'ubuntu16', 'ubuntu18', 'amazonlinux2', 'rhel7', 'centos7'
@@ -106,16 +106,6 @@ else:
     #     print("That was not a valid choice. Exiting...")
     #     sys.exit(1)
 
-    
-
-# Default system user - maybe only necessary for linux
-if args.user:
-    value_dict["VAR_USER"] = args.user
-elif not args.os or args.os and args.os not in linux_os:
-    pass
-else:
-    skipped_req["user"] = "No Default"
-
 # key pair
 if args.key:
     value_dict["VAR_KEYNAME"] = args.key
@@ -151,6 +141,25 @@ if args.sgs:
 else:
     value_dict["VAR_SECURITY_GROUPS"] = get_sgs(vpc, region, profile)
 
+# If OS is entered, use it. Else, create as parameter
+if args.os in allowed_os:
+    value_dict["VAR_OS"] = args.os
+else:
+    print("\n##########\nWARNING!!!\n##########")
+    print("\nSkipping the os parameter prevents you from entering user data")
+    print("This means you will be limited to using Windows instances with")
+    print("any template created.\n")
+    os_params = "OS:"
+    os_params += "\n    Type: String"
+    os_params += "\n    AllowedValues:"
+    for os in allowed_os:
+        if os not in linux_os:
+            os_params += "\n      - " + os
+
+    value_dict["# VAR_PARAM_OS"] = os_params
+    value_dict["VAR_OS"] = "!Ref OS"
+
+
 
 # USER GEN - OPTIONAL
 
@@ -163,14 +172,7 @@ else:
 value_dict["VAR_HOSTNAME"] = hn
 
 
-if args.timezone:
-    # value_dict["# timedatectl"] = "timedatectl"
-    tz = args.timezone
-else:
-    tz = "UTC"
-    skipped_opts["timezone"] = tz
 
-value_dict["VAR_TIMEZONE"] = tz
 
 # If network type is entered, use it. Else, create as parameter
 if args.network and args.network.lower() == 'public':
@@ -192,27 +194,30 @@ if not value_dict["VAR_ROLE"]:
     value_dict["VAR_ROLE"] = "!Ref IamInstanceProfile"
     # skipped_opts["role"] = "EC2-S3-Access"
 
-# If OS is entered, use it. Else, create as parameter
-if args.os in allowed_os:
-    value_dict["VAR_OS"] = args.os
-else:
-    print("\nSkipping the os parameter prevents you from entering user data")
-    print("This means you will be limited to using Windows instances with")
-    print("any template created.")
-    os_params = "OS:"
-    os_params += "\n    Type: String"
-    os_params += "\n    AllowedValues:"
-    for os in allowed_os:
-        if os not in linux_os:
-            os_params += "\n      - " + os
 
-    value_dict["# VAR_PARAM_OS"] = os_params
-    value_dict["VAR_OS"] = "!Ref OS"
 
 # Write user_data
 if args.os and args.os in linux_os:
+
+    if args.timezone:
+        # value_dict["# timedatectl"] = "timedatectl"
+        tz = args.timezone
+    else:
+        tz = "UTC"
+        skipped_opts["timezone"] = tz
+
+    value_dict["VAR_TIMEZONE"] = tz
+
+    # Default system user - maybe only necessary for linux
+    if args.user:
+        user = args.user
+        value_dict["VAR_USER"] = user
+    else:
+        print("\nDefault username is required for Linux instances:")
+        user = input("Please enter user: ")
+
     value_dict["# VAR_UD"] = add_user_data(
-        args.os, hn, tz, args.user)
+        args.os, hn, tz, user)
 
 # If disks are entered, add them. Else, ignore
 if args.disks:
@@ -245,8 +250,7 @@ if skipped_opts:
     print("You skipped the following optional parameters.")
     print("They are not required, but please confirm you did not \
 omit them by accident")
-    print("Default values shown when available")
-    print("\n")
+    print("Default values shown when available\n")
     for key, value in skipped_opts.items():
         print(f"{key}: {value}")
     print("\n#-------------#\n")
@@ -254,6 +258,7 @@ omit them by accident")
 
 
 # print(value_dict)
+
 
 
 with open(source_file, 'r') as f:

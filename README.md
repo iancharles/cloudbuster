@@ -5,12 +5,11 @@
 - Python 3.7 needs to be installed (it does not need to be you default Python install)
 - Pipenv
 
-If using Python 3.7 and Pipenv are installed, you can create a virtualenv for this project
-by running the following command:
-```$ pipenv install```
+If using Python 3.7 and Pipenv are installed, you can create a virtualenv for this project by running the following command:
+    ```$ pipenv install```
 
 After the virtualenv is created, activate it by running:
-```$ pipenv shell```
+    ```$ pipenv shell```
 
 ### To-Do
 - Add support for more OS:

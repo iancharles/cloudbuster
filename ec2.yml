@@ -7,7 +7,7 @@ Parameters:
   # VAR_PARAM_OS
   AvailabilityZone:
     Type: AWS::EC2::AvailabilityZone::Name
-    Default: VAR_REGIONa
+    Default: VAR_AZ
   SubnetType:
     Type: String
     AllowedValues:

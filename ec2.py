@@ -168,14 +168,21 @@ else:
 
 # USER GEN - OPTIONAL
 
+# Hostname (maybe this should be required)
 if args.hostname:
     hn = args.hostname
 else:
-    hn = "Cloudbuster Host 1"
-    skipped_opts["hostname"] = hn
+    hn = input("Please enter hostname: ")
 
 value_dict["VAR_HOSTNAME"] = hn
 
+# Availability Zone
+if args.zone:
+    az = args.zone
+else:
+    az = "a"
+
+value_dict["VAR_AZ"] = region + az
 
 
 

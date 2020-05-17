@@ -25,7 +25,8 @@ def add_user_data(os, hostname, timezone, user):
     
     user_dict = {
         "amazonlinux2": "ec2-user",
-        "centos7": "centos", 
+        "centos7": "centos",
+        "rhel7": "ec2-user",
         "ubuntu16": "ubuntu",
         "ubuntu18": "ubuntu"
     }

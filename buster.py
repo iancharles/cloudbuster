@@ -8,9 +8,11 @@ import sys
 import datetime
 import os
 
-from regionget import get_region
+
 from amiget import get_amimap
+from iam_role_get import get_iam_role
 from keypairget import get_key_pairs
+from regionget import get_region
 from size_get import get_sizes
 from subnetget import get_subnets
 from sg_get import get_sgs
@@ -41,8 +43,12 @@ value_dict = {}
 skipped_opts = {}
 skipped_req = {}
 
-allowed_os = ['ubuntu16', 'ubuntu18', 'amazonlinux2']
-linux_os = ['ubuntu16', 'ubuntu18', 'amazonlinux2']
+allowed_os = [
+    'ubuntu16', 'ubuntu18', 'amazonlinux2', 'rhel7', 'centos7'
+    ]
+linux_os = [
+    'ubuntu16', 'ubuntu18', 'amazonlinux2', 'rhel7', 'centos7'
+    ]
 allowed_regions = ['us-east-1', 'us-east-2', 'us-west-2']
 
 source_file = "ec2.yml"
@@ -176,20 +182,22 @@ else:
 if args.role:
     value_dict["VAR_ROLE"] = args.role
 else:
+    value_dict["VAR_ROLE"] = get_iam_role(profile, region)
+if not value_dict["VAR_ROLE"]:
     role_params = "IamInstanceProfile:"
     role_params += "\n    Type: String"
     role_params += "\n    Default: EC2-S3-Access"
 
     value_dict["# VAR_PARAM_ROLE"] = role_params
     value_dict["VAR_ROLE"] = "!Ref IamInstanceProfile"
-    skipped_opts["role"] = "EC2-S3-Access"
+    # skipped_opts["role"] = "EC2-S3-Access"
 
 # If OS is entered, use it. Else, create as parameter
 if args.os in allowed_os:
     value_dict["VAR_OS"] = args.os
 else:
     print("\nSkipping the os parameter prevents you from entering user data")
-    print("This means you will be limited to using windows instances with")
+    print("This means you will be limited to using Windows instances with")
     print("any template created.")
     os_params = "OS:"
     os_params += "\n    Type: String"

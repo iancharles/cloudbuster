@@ -12,6 +12,7 @@ import os
 from amiget import get_amimap
 from iam_role_get import get_iam_role
 from keypairget import get_key_pairs
+from os_get import get_os
 from regionget import get_region
 from size_get import get_sizes
 from subnetget import get_subnets
@@ -43,6 +44,7 @@ value_dict = {}
 skipped_opts = {}
 skipped_req = {}
 
+#Note: if updating allowed_os, also update linux_os (below) and user_dict in userdata.py
 allowed_os = [
     'ubuntu16', 'ubuntu18', 'amazonlinux2', 'rhel7', 'centos7', 'windows2016'
     ]
@@ -143,21 +145,24 @@ else:
 
 # If OS is entered, use it. Else, create as parameter
 if args.os in allowed_os:
-    value_dict["VAR_OS"] = args.os
+    os = args.os
+    value_dict["VAR_OS"] = os
 else:
-    print("\n##########\nWARNING!!!\n##########")
-    print("\nSkipping the os parameter prevents you from entering user data")
-    print("This means you will be limited to using Windows instances with")
-    print("any template created.\n")
-    os_params = "OS:"
-    os_params += "\n    Type: String"
-    os_params += "\n    AllowedValues:"
-    for os in allowed_os:
-        if os not in linux_os:
-            os_params += "\n      - " + os
+    os = get_os(allowed_os)
+    if os:
+        value_dict["VAR_OS"] = os
+    else:
+        print("\nProceeding without OS")
+        os_params = "OS:"
+        os_params += "\n    Type: String"
+        os_params += "\n    AllowedValues:"
+        for os in allowed_os:
+            if os not in linux_os:
+                os_params += "\n      - " + os
 
-    value_dict["# VAR_PARAM_OS"] = os_params
-    value_dict["VAR_OS"] = "!Ref OS"
+        value_dict["# VAR_PARAM_OS"] = os_params
+        value_dict["VAR_OS"] = "!Ref OS"
+        skipped_opts["os"] = "Enter as PARAMETER in CloudFormation (Windows Only)"
 
 
 
@@ -192,12 +197,12 @@ if not value_dict["VAR_ROLE"]:
 
     value_dict["# VAR_PARAM_ROLE"] = role_params
     value_dict["VAR_ROLE"] = "!Ref IamInstanceProfile"
-    # skipped_opts["role"] = "EC2-S3-Access"
+    skipped_opts["role"] = "Enter as PARAMETER in CloudFormation"
 
 
 
 # Write user_data
-if args.os and args.os in linux_os:
+if os in linux_os:
 
     if args.timezone:
         # value_dict["# timedatectl"] = "timedatectl"
@@ -217,7 +222,13 @@ if args.os and args.os in linux_os:
         user = input("Please enter user: ")
 
     value_dict["# VAR_UD"] = add_user_data(
-        args.os, hn, tz, user)
+        os, hn, tz, user)
+
+# Format root EBS vol properly
+if os in ['amazonlinux2']:
+    value_dict["VAR_ROOT_VOL_NAME"] = "/dev/xvda"
+else:
+    value_dict["VAR_ROOT_VOL_NAME"] = "/dev/sda1"
 
 # If disks are entered, add them. Else, ignore
 if args.disks:
@@ -238,7 +249,7 @@ if args.disks:
             
     value_dict["# VAR_PARAM_DISKS"] = disk_params
 else:
-    skipped_opts["Disks"] = "None"
+    skipped_opts["Addt'l EBS Volumes"] = "None"
 
 
 
@@ -247,6 +258,7 @@ else:
 
 
 if skipped_opts:
+    print("\n#-------------#\n")
     print("You skipped the following optional parameters.")
     print("They are not required, but please confirm you did not \
 omit them by accident")
@@ -255,9 +267,6 @@ omit them by accident")
         print(f"{key}: {value}")
     print("\n#-------------#\n")
 
-
-
-# print(value_dict)
 
 
 

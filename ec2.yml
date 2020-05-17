@@ -30,7 +30,7 @@ Resources:
     Type: AWS::EC2::Instance
     Properties:
       BlockDeviceMappings:
-        - DeviceName: /dev/sda1
+        - DeviceName: VAR_ROOT_VOL_NAME
           Ebs:
             VolumeSize: 64
             Encrypted: true

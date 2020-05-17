@@ -2,11 +2,6 @@ import boto3
 import collections
 
 
-
-# Temp variables, replace with logic
-# profile_nm = "default"
-# region_nm = "us-east-2"
-
 # Initial structure and defaults
 subnet_dict = collections.defaultdict(dict)
 subnet_dict['Mappings'] = collections.defaultdict(dict)
@@ -65,15 +60,11 @@ def get_subnets(profile_nm, allowed_regions):
     # The final printer
     subnet_map = ""
     for key in subnet_dict:
-        # print(f"{key}:")
         for key_two in subnet_dict[key]:
-            # print(f"  {key_two}:")
             subnet_map += ("  " + key_two + ":")
             for key_three in subnet_dict[key][key_two]:
-                # print(f"    {key_three}:")
                 subnet_map += ("\n    " + key_three + ":")
                 for key_four in subnet_dict[key][key_two][key_three]:
-                    # print(f"      {key_four}: {subnet_dict[key][key_two][key_three][key_four]}")
                     subnet_map += ("\n      " + key_four + ": " + subnet_dict[key][key_two][key_three][key_four])
 
     return subnet_map

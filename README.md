@@ -6,9 +6,11 @@
 - Pipenv
 
 If using Python 3.7 and Pipenv are installed, you can create a virtualenv for this project by running the following command:
+    
     ```$ pipenv install```
 
 After the virtualenv is created, activate it by running:
+    
     ```$ pipenv shell```
 
 ### To-Do

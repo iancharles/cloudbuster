@@ -13,6 +13,7 @@ from amiget import get_amimap
 from iam_role_get import get_iam_role
 from keypairget import get_key_pairs
 from os_get import get_os
+from profileget import get_profile
 from regionget import get_region
 from size_get import get_sizes
 from subnetget import get_subnets
@@ -61,13 +62,7 @@ if args.profile:
 elif 'AWS_PROFILE' in os.environ:
     profile = os.environ['AWS_PROFILE']
 else:
-    print("\nProfile is required")
-    print("\nTo set profile in BASH environment variable")
-    print("(Profile must already be configured in ~/.aws/config):")
-    print("$ export AWS_PROFILE=myprofile")
-    print("\nTo set profile using flag in cloudbuster:")
-    print("Add  '--profile myprofile' to your cloudbuster command\n")
-    sys.exit(1)
+    profile = get_profile()
 
 # GET VPC and REGION - REQUIRED!
 if args.region:
@@ -285,4 +280,6 @@ with open(source_file, 'r') as f:
 with open(build_file, 'w') as f:
     f.write(build)
 
+print(f"\nYou created this template with the profile {profile}")
+print("Please make sure this is for the correct profile\n")
 print(f"Your Cloudbuster CFT File is now available at {build_file}\n")

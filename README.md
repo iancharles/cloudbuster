@@ -2,8 +2,10 @@
 ## An interactive tool for creating Cloudformation Templates
 
 ### Prerequisites
-- Python 3.7 needs to be installed (it does not need to be you default Python install)
+- Python 3.7 needs to be installed (it does not need to be your default Python install)
 - Pipenv
+- AWS CLI needs to be installed and configured.
+    - Profiles need to be set up in ~/.aws/config
 
 If using Python 3.7 and Pipenv are installed, you can create a virtualenv for this project by running the following command:
     

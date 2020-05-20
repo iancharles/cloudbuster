@@ -38,14 +38,14 @@ Cloudbuster supports a large selection of parameters:
 - ```-t, --type``` Instance type (size)
 - ```-k, --key``` Keypair for instance
 - ```-r, --role``` IAM instance role
-` ```--sgs``` Security Groups. Can be between 1 and 5 arguments
+- ```--sgs``` Security Groups. Can be between 1 and 5 arguments
 
 
 OPTIONAL
 - ```-d, --disks``` Additional EBS (data) volumes. A root block device is always included and does not need to be specified
 - ```-z, --zone``` Availability Zone. If not provided, one will be selected for you
 - ```--network``` If not provided, the network will default to Private
-` ```--timezone``` If not provided, the timezone will default to UTC
+- ```--timezone``` If not provided, the timezone will default to UTC
 
 ### Prompts
 If a parameter is not entered through any of the methods above, you may be prompted for it. While Cloudbuster attempts to be comprehensive, some missing values may not generate prompts, so try and front-load Cloudbuster with whatever values you do have available. As a last resort, some values may finally be either set as defaults, or become Parameters in the resulting CloudForamtion template. Due to dependencies, if you do not enter a value for *os*, you will only be able to create Windows instances through the template.

@@ -18,6 +18,9 @@ def get_iam_role(profile, region):
 
 
     counter = 1
+    print("\nIAM INSTANCE ROLE")
+    print("=================")
+    print("Also called Instance Profiles")
     print("\nAvailable Instance Roles:\n")
     for role in available_instance_profiles:
         print(f"{counter} - {role}")

@@ -13,9 +13,10 @@ from amiget import get_amimap
 from iam_role_get import get_iam_role
 from keypairget import get_key_pairs
 from os_get import get_os
+from populate import populate
 from profileget import get_profile
 from regionget import get_region
-from size_get import get_sizes
+# from size_get import get_sizes
 from subnetget import get_subnets
 from sg_get import get_sgs
 from userdata import add_user_data
@@ -37,6 +38,7 @@ parser.add_argument('--profile', help="AWS CLI Profile")
 parser.add_argument('--network', help="Public or Private subnet")
 parser.add_argument('--timezone', help='Timezone of instance')
 parser.add_argument('--user', help='default user on instance')
+parser.add_argument('--populate', help='enter location of file')
 parser.add_argument('-d', '--disks', nargs='+', help='add data volumes', default=None)
 parser.add_argument('--sgs', nargs='+', help='add security groups', default=None)
 args = parser.parse_args()
@@ -44,6 +46,10 @@ args = parser.parse_args()
 value_dict = {}
 skipped_opts = {}
 skipped_req = {}
+
+if args.populate:
+    pop_dict = populate(args.populate)
+
 
 #Note: if updating allowed_os, also update linux_os (below) and user_dict in userdata.py
 allowed_os = [
@@ -63,6 +69,7 @@ elif 'AWS_PROFILE' in os.environ:
     profile = os.environ['AWS_PROFILE']
 else:
     profile = get_profile()
+    print("\n")
 
 # GET VPC and REGION - REQUIRED!
 if args.region:
@@ -209,6 +216,8 @@ if os in linux_os:
     if args.timezone:
         # value_dict["# timedatectl"] = "timedatectl"
         tz = args.timezone
+    elif pop_dict["timezone"]:
+        tz = pop_dict["timezone"]
     else:
         tz = "UTC"
         skipped_opts["timezone"] = tz
@@ -219,6 +228,8 @@ if os in linux_os:
     if args.user:
         user = args.user
         value_dict["VAR_USER"] = user
+    elif pop_dict['user']:
+        user = pop_dict['user']
     else:
         print("\nDefault username is required for Linux instances:")
         user = input("Please enter user: ")

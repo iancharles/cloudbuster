@@ -18,7 +18,12 @@ def get_profile():
                     options.append(item)
 
         counter = 1
-        print("Available Profiles:")
+        print("\nCLI PROFILE")
+        print("===========")
+        print("CLI profile is required.")
+        print("This is configured in '~/.aws/config'")
+        print('and is not to be confused with the instance IAM profile')
+        print("\nAvailable Profiles:")
         for profile in options:
             print(f"{counter} - {profile}")
             counter += 1

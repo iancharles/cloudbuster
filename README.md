@@ -1,10 +1,11 @@
 # CLOUDBUSTER
-## An interactive tool for creating Cloudformation Templates
+### An interactive tool for creating Cloudformation Templates
 
-### Prerequisites
+## Prerequisites
 - Python 3.7 needs to be installed (it does not need to be your default Python install)
 - Pipenv
 - AWS CLI needs to be installed and configured.
+    - Either version (1 or 2) should be fine
     - Profiles need to be set up in ~/.aws/config
 
 If using Python 3.7 and Pipenv are installed, you can create a virtualenv for this project by running the following command:
@@ -15,7 +16,40 @@ After the virtualenv is created, activate it by running:
     
     $ pipenv shell
 
-### To-Do
+## Usage
+Cloudbuster is versitile. You will need to provide a CLI profile and either a VPC or Region, but after that it is very flexible. The more information you give it upfront, the less it will prompt you.
+
+### Parameter Files
+If you have access to a customer_data file, you can pre-populate some values that are helpful while building Linux instances
+
+    $ python ec2.py --populate /path/to/data/file.sls
+
+You may want to consider cloning some gitlab projects and setting up an easily-accessible directory.
+
+There are future plans for support for more types of files.
+
+### CLI Parameters
+The most common way of entering parameters is by adding command line flags.
+Cloudbuster supports a large selection of parameters:
+- ```-v, --vpc``` Either VPC or Region is required
+- ```-r, --region``` See above
+- ```--profile``` Must be entered either as flag or as environment variable
+- ```-o, --os``` Operating System
+- ```-t, --type``` Instance type (size)
+- ```-k, --key``` Keypair for instance
+- ```-r, --role``` IAM instance role
+` ```--sgs``` Security Groups. Can be between 1 and 5 arguments
+
+
+OPTIONAL
+- ```-d, --disks``` Additional EBS (data) volumes. A root block device is always included and does not need to be specified
+- ```-z, --zone``` Availability Zone. If not provided, one will be selected for you
+- ```--network``` If not provided, the network will default to Private
+` ```--timezone``` If not provided, the timezone will default to UTC
+
+
+
+## To-Do
 - Add support for more OS:
     - Centos 7
     - Amazon Linux (not AL2)

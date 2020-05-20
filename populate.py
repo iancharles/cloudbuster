@@ -1,8 +1,6 @@
 
 import sys
 
-# test values, will be replaced later
-# file = "files/customer_data.sls"
 
 def populate(file):
     # create empty dict for return values
@@ -36,6 +34,13 @@ def populate(file):
                 linux_timezone = tz_dict[raw_timezone]
                 
                 pop_values["timezone"] = linux_timezone
+                continue
 
+    if len(pop_values) == 2:
+        return pop_values
+    else:
+        print("\nSome values not found in file\n")
+        return None
+        
+    
     return pop_values
-

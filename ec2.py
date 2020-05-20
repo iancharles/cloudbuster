@@ -174,6 +174,8 @@ else:
 if args.hostname:
     hn = args.hostname
 else:
+    print("\nHOSTNAME")
+    print("========")
     hn = input("Please enter hostname: ")
 
 value_dict["VAR_HOSTNAME"] = hn
@@ -216,7 +218,7 @@ if os in linux_os:
     if args.timezone:
         # value_dict["# timedatectl"] = "timedatectl"
         tz = args.timezone
-    elif pop_dict["timezone"]:
+    elif pop_dict and pop_dict["timezone"]:
         tz = pop_dict["timezone"]
     else:
         tz = "UTC"
@@ -228,7 +230,7 @@ if os in linux_os:
     if args.user:
         user = args.user
         value_dict["VAR_USER"] = user
-    elif pop_dict['user']:
+    elif pop_dict and pop_dict['user']:
         user = pop_dict['user']
     else:
         print("\nDefault username is required for Linux instances:")

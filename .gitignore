@@ -1,6 +1,7 @@
 # User added
 infra/
 stacks/
+files/
 Pipfile.lock
 
 # Byte-compiled / optimized / DLL files

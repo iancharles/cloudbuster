@@ -47,17 +47,5 @@ OPTIONAL
 - ```--network``` If not provided, the network will default to Private
 ` ```--timezone``` If not provided, the timezone will default to UTC
 
-
-
-## To-Do
-- Add support for more OS:
-    - Centos 7
-    - Amazon Linux (not AL2)
-    - RHEL 7
-    - Windows 2016
-- Fix size get function and add logic to main to show available types
-- Add more checks for missing values
-- Add more functions to automatically get default values
-- Add more helpful outputs
-
-
+### Prompts
+If a parameter is not entered through any of the methods above, you may be prompted for it. While Cloudbuster attempts to be comprehensive, some missing values may not generate prompts, so try and front-load Cloudbuster with whatever values you do have available. As a last resort, some values may finally be either set as defaults, or become Parameters in the resulting CloudForamtion template. Due to dependencies, if you do not enter a value for *os*, you will only be able to create Windows instances through the template.

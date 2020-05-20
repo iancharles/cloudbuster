@@ -3,7 +3,8 @@ infra/
 stacks/
 files/
 Pipfile.lock
-
+todo.txt
+todo.md
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]

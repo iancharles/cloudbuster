@@ -7,7 +7,8 @@ def main():
     import argparse
     import sys
     import datetime
-    import os
+    from os import environ
+    from pkg_resources import resource_filename
 
 
     from cloudbuster.amiget import get_amimap
@@ -63,13 +64,14 @@ def main():
         ]
     allowed_regions = ['us-east-1', 'us-east-2', 'us-west-2', 'eu-central-1']
 
-    source_file = "ec2.yml"
+    source_file = resource_filename('cloudbuster', 'ec2.yml')
+    # source_file = "ec2.yml"
     build_file = '{:%Y-%m-%d-%H:%M}'.format(datetime.datetime.now()) + ".yml"
 
     if args.profile:
         profile = args.profile
-    elif 'AWS_PROFILE' in os.environ:
-        profile = os.environ['AWS_PROFILE']
+    elif 'AWS_PROFILE' in environ:
+        profile = environ['AWS_PROFILE']
     else:
         profile = get_profile()
         print("\n")

@@ -30,7 +30,9 @@ def get_vpc(profile, region):
             # print(tag["Value"])
             available_vpcs[vpc['VpcId']] = tag["Value"]
 
-    print("\nVPC is REQUIRED to proceed. Please choose from one below,")
+    print("\nVPC")
+    print("===")
+    print("VPC is REQUIRED to proceed. Please choose from one below,")
     print("or hit Q to exit Cloudbuster\n")
 
 

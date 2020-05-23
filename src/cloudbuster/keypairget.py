@@ -5,7 +5,7 @@ def get_key_pairs(profile, region):
     ec2 = session.client('ec2')
     keypairs = ec2.describe_key_pairs()
     counter = 1
-    print("KEY PAIR")
+    print("\nKEY PAIR")
     print("========")
     print("Key pair is required for all instances")
     print("\nAvailable Key Pairs:")

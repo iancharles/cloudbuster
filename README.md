@@ -42,10 +42,12 @@ Cloudbuster supports a large selection of parameters:
 
 
 OPTIONAL
-- ```-d, --disks``` Additional EBS (data) volumes. A root block device is always included and does not need to be specified
 - ```-z, --zone``` Availability Zone. If not provided, one will be selected for you
+- ```-d, --disks``` Additional EBS (data) volumes. A root block device is always included and does not need to be specified
+- ```--root``` Default root volume size is 64 GB. Specify a value for --root-vol to override this
 - ```--network``` If not provided, the network will default to Private
 - ```--timezone``` If not provided, the timezone will default to UTC
+
 
 ### Prompts
 If a parameter is not entered through any of the methods above, you may be prompted for it. While Cloudbuster attempts to be comprehensive, some missing values may not generate prompts, so try and front-load Cloudbuster with whatever values you do have available. As a last resort, some values may finally be either set as defaults, or become Parameters in the resulting CloudForamtion template. Due to dependencies, if you do not enter a value for *os*, you will only be able to create Windows instances through the template.

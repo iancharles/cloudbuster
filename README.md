@@ -26,6 +26,10 @@ As long as this virtualenv is active, you can safely use the ```cloudbuster``` c
 ## Usage
 Cloudbuster is versitile. You will need to provide a CLI profile and either a VPC or Region, but after that it is very flexible. The more information you give it upfront, the less it will prompt you.
 
+### Example
+
+    $ cloudbuster --profile moon-company --os ubuntu18 --vpc moon-east-vpc --hostname moonlander-server-1 --user moon-admin --timezone America/Chicago
+
 ### Environment Variable
 When using the AWS CLI, a common way to set the preferred account profile is by temporarily setting it as an environment variable. This is compatible with Cloudbuster as well. To set a profile (profile must already exist in ~/.aws/config):
 
@@ -34,7 +38,7 @@ When using the AWS CLI, a common way to set the preferred account profile is by 
 ### Parameter Files
 If you have access to a customer_data file, you can pre-populate some values that are helpful while building Linux instances
 
-    $ python ec2.py --populate /path/to/data/file.sls
+    $ cloudbuster --populate /path/to/data/file.sls
 
 You may want to consider cloning some gitlab projects and setting up an easily-accessible directory.
 

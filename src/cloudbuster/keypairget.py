@@ -17,7 +17,6 @@ def get_key_pairs(profile, region):
         index = int(input("\nChoose a keypair: ")) -1
         if -1 < index < counter:
             return keypairs['KeyPairs'][index]['KeyName']
-            # print(keypairs['KeyPairs'][index]['KeyName'])
     except:
         return None
 

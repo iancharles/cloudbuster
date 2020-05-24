@@ -36,26 +36,3 @@ def get_iam_role(profile, region):
         print("\n##########\nWARNING!!!\n##########")
         print("That is not a valid profile/role")
         print("You will be required to enter a profile as a parameter in CF\n")
-            
-        
-        
-
-        
-    # available_iam_roles = []
-    # all_iam_roles = iam.list_roles()
-    # for role in all_iam_roles['Roles']:
-    #     # print(role['RoleName'])
-    #     for statement in role['AssumeRolePolicyDocument']['Statement']:
-    #         # print(statement['Principal'])
-    #         # print(statement['Principal']['Service'])
-    #         for service in statement['Principal']:
-    #             # print(statement['Principal']['Service'])
-    #             if 'ec2' in statement['Principal']['Service']:
-    #                 available_iam_roles.append(role['RoleName'])
-    #                 available_iam_roles.append(role['RoleName'])
-
-    # print(available_iam_roles)
-    
-
-
-# get_iam_role('default', 'us-west-2')

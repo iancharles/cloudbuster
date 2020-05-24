@@ -45,6 +45,3 @@ def get_region(profile, vpc_nm, regions):
             if tags["Tags"]:
                 return region
 
-
-
-# get_region("default", "vpc-06db524c77128c292", regions)

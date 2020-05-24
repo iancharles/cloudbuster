@@ -23,8 +23,8 @@ def populate(file):
 
         # GET THE USER
         for line in lines:
-            if line.startswith('custadmin'):
-                pop_values['user'] = line.replace("custadmin: ", "").strip()
+            if line.startswith('user'):
+                pop_values['user'] = line.replace("user: ", "").strip()
                 continue
 
         # GET THE TIMEZONE

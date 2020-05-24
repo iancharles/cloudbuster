@@ -5,7 +5,7 @@ def get_os(allowed_os):
     print("Skipping the os parameter prevents you from entering user data.")
     print("This means you will be limited to using Windows instances with")
     print("any template created. Hit 'N' to accept this, or any other key")
-    print("to  choose from a list of supported OS.\n")
+    print("to choose from a list of supported OS.\n")
     if input("Choose OS? [Y/n] ").lower() != 'n':
         counter = 1
         print("\nSupported OS:")

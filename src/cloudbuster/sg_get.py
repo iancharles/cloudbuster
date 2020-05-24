@@ -39,8 +39,7 @@ def get_sgs(vpc, region_nm, profile_nm):
         if input(f"{item['GroupName']} - {item['Description']} [y/N]: ").lower() == 'y':
             selected_security_groups.append(item["GroupId"])
     
-    print("\n#-------------#\n")
-    # security_groups = dumps(selected_security_groups)
+    # print("\n#-------------#\n")
 
     sg_output = ""
 

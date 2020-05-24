@@ -65,7 +65,7 @@ def main():
     allowed_regions = ['us-east-1', 'us-east-2', 'us-west-2', 'eu-central-1']
 
     source_file = resource_filename('cloudbuster', 'ec2.yml')
-    # source_file = "ec2.yml"
+
     build_file = '{:%Y-%m-%d-%H:%M}'.format(datetime.datetime.now()) + ".yml"
 
     if args.profile:
@@ -105,13 +105,14 @@ def main():
         print("\nTYPE")
         print("====")
         print("Instance type is required.")
-        # TO DO: Add instance type generator
-        # print("You can choose to see a list of types before entering a value.")
-        # size_choices = get_sizes(profile, region)
-        # if input("See available types first? [y/N] ").lower() == "y":
-            # print(size_choices)
         selection = input("\nEnter instance type (size): ")
         value_dict["VAR_INSTANCE_TYPE"] = selection
+        if not selection:
+            print("\nInstance type is required. A list of available instance types can be found here:")
+            print("https://aws.amazon.com/ec2/instance-types/")
+            print("\nExiting...")
+            sys.exit(1)
+        # TO DO: Add instance type validator    
         # if selection in size_choices:
         #     value_dict["VAR_INSTANCE_TYPE"] = selection
         # else:
@@ -193,7 +194,7 @@ def main():
 
 
 
-    # If network type is entered, use it. Else, create as parameter
+    # If network type is entered, use it. Else, create as parameter with private as default
     if args.network and args.network.lower() == 'public':
         value_dict["VAR_NETWORK"] = "Public"
     else:
@@ -207,7 +208,7 @@ def main():
     if not value_dict["VAR_ROLE"]:
         role_params = "IamInstanceProfile:"
         role_params += "\n    Type: String"
-        role_params += "\n    Default: EC2-S3-Access"
+        # role_params += "\n    Default: EC2-S3-Access"
 
         value_dict["# VAR_PARAM_ROLE"] = role_params
         value_dict["VAR_ROLE"] = "!Ref IamInstanceProfile"
@@ -229,7 +230,7 @@ def main():
 
         value_dict["VAR_TIMEZONE"] = tz
 
-        # Default system user - maybe only necessary for linux
+        # Default system user (linux only)
         if args.user:
             user = args.user
             value_dict["VAR_USER"] = user
@@ -263,7 +264,7 @@ def main():
         disks = args.disks
         block_device_pool = [
             '/dev/xvdb', '/dev/xvdc', '/dev/xvdd', \
-            '/dev/xvde', '/dev/xvdf', '/dev/xvdg', '/dev/xvdh' \
+            '/dev/xvde', '/dev/xvdf', '/dev/xvdg', '/dev/xvdh', \
             '/dev/xvdi', '/dev/xvdj', '/dev/xvdk', '/dev/xvdl'
             ]
         counter = 0

@@ -40,5 +40,3 @@ def add_user_data(os, hostname, timezone, user):
         userdata = userdata.replace(key, value)
     # print(userdata)
     return userdata
-
-# add_user_data("ubuntu18", "cb-instance-1", "America/Los_Angeles", "nv-admin")

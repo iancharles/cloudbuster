@@ -2,13 +2,27 @@
 ### An interactive tool for creating Cloudformation Templates
 
 ## Prerequisites
-- Python 3.7 needs to be installed (it does not need to be your default Python install)
-- Pipenv
+- Python 3.7 or later needs to be installed (it does not need to be your default Python install)
+    - If you are using Windows, WSL (Windows Subsystem on Linux) is highly recommended, preferably with Ubuntu 20.04. If using a different distribution with WSL, you may need to install a more recent version of Python.
 - AWS CLI needs to be installed and configured.
     - Either version (1 or 2) should be fine
     - Profiles need to be set up in ~/.aws/config
+- Pipenv (or your preferred method of isolation) is **strongly** recommended
 
-If using Python 3.7 and Pipenv are installed, you can create a virtualenv for this project by running the following command:
+## Install Methods
+Cloudbuster can be installed either by installing a wheel file through pip, or downloading the full source code and using a virtual env.
+
+
+### Install from wheel
+The first method is simpler, but runs the risk of incompatible depencencies if not using virtualenvs.
+First, download the wheel file (currently: https://github.com/iancharles/cloudbuster/raw/master/cloudbuster-0.1.0-py37-none-any.whl)
+Then, install:
+
+    $ pip3 install cloudbuster-0.1.0-py37-none-any.whl
+
+### Download source code directly
+First, download or clone this project. Navigate to the main folder.
+If using Python 3.7+ and Pipenv, you can create a virtualenv for this project by running the following command in the main folder:
     
     $ pipenv install
 
@@ -16,8 +30,15 @@ After the virtualenv is created, activate it by running:
     
     $ pipenv shell
 
+As long as this virtualenv is active, you can safely use the ```cloudbuster``` command.
+
 ## Usage
 Cloudbuster is versitile. You will need to provide a CLI profile and either a VPC or Region, but after that it is very flexible. The more information you give it upfront, the less it will prompt you.
+
+### Environment Variable
+When using the AWS CLI, a common way to set the preferred account profile is by temporarily setting it as an environment variable. This is compatible with Cloudbuster as well. To set a profile (profile must already exist in ~/.aws/config):
+
+    $ export AWS_PROFILE=myprofile
 
 ### Parameter Files
 If you have access to a customer_data file, you can pre-populate some values that are helpful while building Linux instances

@@ -2,29 +2,20 @@
 ### An interactive tool for creating Cloudformation Templates
 
 ## Prerequisites
-- Python 3.7 or later needs to be installed (it does not need to be your default Python install)
-    - If you are using Windows, WSL (Windows Subsystem on Linux) is highly recommended, preferably with Ubuntu 20.04. If using a different distribution with WSL, you may need to install a more recent version of Python.
+- Python 3.7 needs to be installed (it does not need to be your default Python install)
+    - If you are using Windows, WSL (Windows Subsystem on Linux) is highly recommended. You still may need to install 3.7 alongside the system defaults, but 3.7 is available in the main repos of most Linux distributions. 
+    - If you are using a Mac, there are many methods for installing Python 3, but many people like using homebrew. The incomparable Yousef Eledra has writen a Medium article on it.
+    - If you are using Linux and the system default for Python 3 is not 3.7, use your system's native package manager to find and install ```python37```
 - AWS CLI needs to be installed and configured.
     - Either version (1 or 2) should be fine
     - Profiles need to be set up in ~/.aws/config
-- Pipenv (or your preferred method of isolation) is **strongly** recommended
+- Pipenv (or your preferred method of isolation) is required for Cloudbuster v 0.1.0
 
-## Install Methods
-Cloudbuster can be installed either by installing a wheel file through pip, or downloading the full source code and using a virtual env.
-
-
-### Install from wheel
-The first method is simpler, but runs the risk of incompatible depencencies if not using virtualenvs.
-First, download the wheel file (currently: https://github.com/iancharles/cloudbuster/raw/master/cloudbuster-0.1.0-py37-none-any.whl)
-Then, install:
-
-    $ pip3 install cloudbuster-0.1.0-py37-none-any.whl
-
-### Download source code directly
+## Installing Cloudbuster
 First, download or clone this project. Navigate to the main folder.
-If using Python 3.7+ and Pipenv, you can create a virtualenv for this project by running the following command in the main folder:
+Create a virtualenv for this project by running the following command in the main folder:
     
-    $ pipenv install
+    $ pipenv install -e .
 
 After the virtualenv is created, activate it by running:
     

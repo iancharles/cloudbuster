@@ -12,6 +12,7 @@ def main():
 
 
     from cloudbuster.amiget import get_amimap
+    from cloudbuster.execute import execute
     from cloudbuster.iam_role_get import get_iam_role
     from cloudbuster.keypairget import get_key_pairs
     from cloudbuster.os_get import get_os
@@ -312,3 +313,7 @@ def main():
     print(f"\nYou created this template with the profile {profile}")
     print("Please make sure this is for the correct profile\n")
     print(f"Your Cloudbuster CFT File is now available at {build_file}\n")
+    print("Run `./execute` to immediately apply this template.")
+
+    # Execute
+    execute(profile, region, build_file, hn)

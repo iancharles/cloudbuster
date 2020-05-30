@@ -64,6 +64,8 @@ OPTIONAL
 - ```--network``` If not provided, the network will default to Private
 - ```--timezone``` If not provided, the timezone will default to UTC
 
+### One-Touch Execute
+Cloudbuster now offers the option to immediately execute your new template. After generating the template, simply run "./execute.sh" to create the stack. This file will be overwritten every time you run Cloudbuster. The first time you run Cloudbuster, you will need to make the execute.sh file executable with ```chmod +x execute.sh```.
 
 ### Prompts
 If a parameter is not entered through any of the methods above, you may be prompted for it. While Cloudbuster attempts to be comprehensive, some missing values may not generate prompts, so try and front-load Cloudbuster with whatever values you do have available. As a last resort, some values may finally be either set as defaults, or become Parameters in the resulting CloudForamtion template. Due to dependencies, if you do not enter a value for *os*, you will only be able to create Windows instances through the template.
